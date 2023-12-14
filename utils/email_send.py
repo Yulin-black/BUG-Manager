@@ -19,7 +19,7 @@ def send_email(email):
     # print(from_email)
     send_status = send_mail("Yulin", email_body, from_email, [email, ])
     if send_status:
-        data = f"发送成功:{email_body}"
+        data = {"data":200}
     else:
-        data =  "发送失败"
-    return data
+        data =  {"data":101}
+    return data, code
