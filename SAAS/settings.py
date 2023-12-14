@@ -124,7 +124,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# EMAIL_HOST = ''   # 用于发送电子邮件的主机
+# EMAIL_HOST_USER = ""    # 发送邮件的邮箱地址
+# EMAIL_HOST_PASSWORD = ""     # 发送邮件的邮箱密码
+# EMAIL_PORT = 465       # SMTP服务器端口号。通常，使用SSL加密的端口是465，而非SSL加密的端口是25或587，具体取决于你的邮件提供商。
+# EMAIL_USE_SSL = True    # 是否使用隐式的安全连接
+
+# 个后端实际上并不发送电子邮件，而是将邮件内容输出到控制台（终端或命令行界面）供调试和开发使用。
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 try:
     from .local_settings import *
 except ImportError:
-    pass
+    print("settings文件出问题啦！")
