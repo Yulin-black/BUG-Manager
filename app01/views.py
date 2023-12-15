@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django_redis import get_redis_connection
 
 from utils.email_send import send_email
 from . import forms
@@ -14,7 +15,7 @@ def Send_eamil(request):
 def register(request):
     form = forms.RegisterModelForm()
     # print(form)
-    return render(request, "register.html", {"form":form})
+    return render(request, "app01/register.html", {"form":form})
 
 
 def verify(request):
@@ -48,4 +49,21 @@ def verify(request):
                 print("email数据校验失败", form.errors)
         else:
             form = forms.VerifyModelForm()
-    return render(request, "verify.html",{"form":form})
+    return render(request, "app01/verify.html", {"form":form})
+
+def testredis(request):
+    # 从连接池中获取一个连接
+    # 选择从哪个redis中获取，不写默认default
+    conn = get_redis_connection("default")
+
+    conn.set("test", "测试django-redis。", ex=120 )
+
+    value = conn.get('test')
+    return HttpResponse(value.decode('utf-8'))
+
+
+
+
+
+
+
