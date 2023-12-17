@@ -28,7 +28,7 @@ def verify(request):
             print(email, code)
 
             # 验证通过就跳转到 注册页面
-            return redirect('register')
+            return redirect('app01:register')
             # return HttpResponseRedirect(reverse('register'))
         else:
             print("code数据校验失败", form.errors)

@@ -1,9 +1,8 @@
 from django.urls import path
 from . import views
 
-# app_name = "app01"
-
-
+# 定义命名空间
+app_name = 'app01'
 
 urlpatterns = [
     path('verify/', views.verify, name='verify'),
