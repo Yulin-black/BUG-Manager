@@ -1,0 +1,78 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %}
+	<title>用户注册</title>
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/verify-register.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="account">
+            <form method="post">
+             <h1 style="text-align: center">注册</h1>
+            {% for foo in form %}
+                {% csrf_token %}
+                {% if foo.name == "code" %}
+                    <div class="form-group">
+                        <label for="{{ foo.id_for_label }}"  >{{ foo.label }}:</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding-left: 0">{{ foo }}</div>
+                            <div class="col-md-6"><input type="button" class="btn btn-default" value="点击获取验证码" onclick="getCode()"> </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <label for="{{ foo.id_for_label }}" >{{ foo.label }}:</label>
+                        {{ foo }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+	<script>
+    function getCode() {
+        // 获取邮箱
+        // var email = document.getElementById("id_email").value;
+        var email = $('#id_email').val();
+        // console.log(email);
+        // 使用AJAX发送邮箱地址到服务器
+        $.ajax({
+            // 反向成功url = 'http://127.0.0.1:8000/verify/'
+            url : "{% url 'web:verify' %}",
+            type : "GET",
+            data : {"email" : email, "tpl":"register"},
+            success:function (res) {
+                // ajax 发送成功后，自动执行的函数
+                // res 为后端返回的值
+                console.log(email,"发送成功")
+
+            }
+        })
+        /*
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", '/verify/?email='+email, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE){
+                if (xhr.status === 200){
+                    console.log("验证码已发送！");
+                    console.log(xhr.responseText)
+                }else{
+                    console.log("验证码发送失败！");
+                }
+            }
+        };
+        xhr.send();
+        */
+    }
+</script>
+
+{% endblock %}

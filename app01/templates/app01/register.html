@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{#{% load static %}#}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<style>
+    .boxx{
+        width: 400px;
+        height: 600px;
+        margin: auto;
+    }
+</style>
+<body>
+
+
+<div class="boxx">
+    <form>
+     <h1 style="text-align: center">注册</h1>
+    {% for foo in form %}
+        {% if foo.name == "code" %}
+            <div class="form-group">
+                <label for="{{ foo.id_for_label }}"  >{{ foo.label }}</label>
+                <div class="clearfix">
+                    <div class="col-md-6" style="padding-left: 0">{{ foo }}</div>
+                    <div class="col-md-6"><input type="button" class="btn btn-default" value="点击获取验证码"> </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="mb-3">
+                <label for="{{ foo.id_for_label }}"  >{{ foo.label }}</label>
+                {{ foo }}
+            </div>
+        {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+</body>
+</html>
