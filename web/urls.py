@@ -5,6 +5,6 @@ app_name = 'web'
 
 urlpatterns = [
     path('', account.index, name='index'),
-    path('verify/', account.verify, name='verify'),
+    path('send_email_info/', account.send_email_info, name='send_email'),
     path("register/", account.register, name='register'),
 ]

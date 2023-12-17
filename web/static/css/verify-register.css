@@ -16,4 +16,12 @@
 }
 .account .form-group {
     margin-bottom: 20px;
+    position: relative;
+}
+
+.error-msg{
+    color: red;
+    position: absolute;
+    margin-left: 10px;
+    font-size: 12px;
 }
