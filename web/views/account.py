@@ -2,7 +2,6 @@
 用户注册相关功能：注册、短信、登录、注销
 """
 from django_redis import get_redis_connection
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from web.forms import account
@@ -10,17 +9,18 @@ from utils.email_send import send_email, random_str
 
 
 def index(request):
-    return render(request, "index.html")
+
+    return render(request, "index.html",)
 
 def register(request):
     if request.method == 'POST':
-        print(request.POST)
-        form = account.RegisterModelForm(request.POST)
+        print("register视图：", request.POST)
+        form = account.RegisterModelForm(data=request.POST)
         if form.is_valid():
-            form.save()
-            return JsonResponse({"status": True})
+            form.save()  # 保存数据
+            return JsonResponse({"status": True, "data": "/login/"})
         else:
-            return JsonResponse({"status":False, "error":form.errors})
+            return JsonResponse({"status": False, "error": form.errors})
     else:
         form = account.RegisterModelForm()
     return render(request, "register.html", {"form": form})
@@ -39,6 +39,21 @@ def send_email_info(request):
             raise ValueError(f"邮件发送失败{data['error']}")
         conn = get_redis_connection("default")
         conn.set(email, code, ex=120)
-        return JsonResponse({"status":True})
+        return JsonResponse({"status": True})
     else:
         return JsonResponse({"status": False, "error": form.errors})
+
+def login(request):
+    if request.method == "POST":
+        print("ajax获取到了邮箱:", request.POST.get('email'),
+              "验证码：", request.POST.get('code'))
+        form = account.EmailLoginForm(data=request.POST)
+        if form.is_valid():
+
+            return JsonResponse({"status": True, "data": "/"})
+        else:
+            return JsonResponse({"status": False, "error": form.errors})
+    else:
+        form = account.EmailLoginForm()
+
+    return render(request, "login.html",{"form":form})

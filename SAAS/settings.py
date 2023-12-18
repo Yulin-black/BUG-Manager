@@ -134,11 +134,11 @@ EMAIL_USE_SSL = True    # 是否使用隐式的安全连接
 # 个后端实际上并不发送电子邮件，而是将邮件内容输出到控制台（终端或命令行界面）供调试和开发使用。
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-GLOBAL_VARIABLE = {
-    "register" : "进入register的口令",
+EMAIL_AUTO_TEMPLATE = {
+    'login' : 50001,
+    'register' : 50002,
+    'retpasswd':50003,
 }
-
-
 
 try:
     from .local_settings import *

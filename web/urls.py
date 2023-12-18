@@ -7,4 +7,5 @@ urlpatterns = [
     path('', account.index, name='index'),
     path('send_email_info/', account.send_email_info, name='send_email'),
     path("register/", account.register, name='register'),
+    path('login/', account.login, name='login'),
 ]
