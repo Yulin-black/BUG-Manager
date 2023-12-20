@@ -11,13 +11,6 @@ from utils.picture_verification_code import check_code
 from web import models
 
 
-
-def index(request):
-    from django.conf import settings
-    print("token",request.COOKIES.get(settings.SESSION_COOKIE_NAME))
-
-    return render(request, "index.html",)
-
 def register(request):
     if request.method == 'POST':
         print("register视图：", request.POST)
