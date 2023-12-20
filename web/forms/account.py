@@ -109,3 +109,37 @@ class EmailLoginForm(AddCssCodeFrom, forms.Form):
     """ 用户登录 """
     email = forms.EmailField(label="邮箱账号")
     code = forms.CharField(label="验证码")
+
+class PicCodeLoginForm(AddCssCodeFrom, forms.Form):
+    email = forms.EmailField(label="邮箱账号")
+    password = forms.CharField(label="密码", widget=forms.PasswordInput())
+    pic_code = forms.CharField(label="验证码")
+
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        user_object = models.UserInfo.objects.filter(email=email).first()
+        if not user_object:
+            raise ValidationError("此邮箱未注册")
+        password = self.data.get('password')
+
+        if not check_password(password, user_object.password):
+            raise ValidationError("邮箱账号或者密码错误")
+        return user_object
+
+    def clean_pic_code(self):
+        code = self.cleaned_data['pic_code'].upper()
+        session_code = self.request.session.get('picCode')
+        if not session_code:
+            raise ValidationError("验证码不存在或已过期。")
+        if code != session_code:
+            raise ValidationError("验证码错误。")
+        return code
+
+
+
+
+

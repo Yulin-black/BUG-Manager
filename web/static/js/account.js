@@ -3,7 +3,7 @@ url = "http://127.0.0.1:8000"
 function ClickSubmit(num) {
     var urlList=[
         '/register/',
-        '/login/',
+        '/login_email/',
     ]
     console.log(urlList[num])
 

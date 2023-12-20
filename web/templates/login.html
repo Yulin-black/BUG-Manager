@@ -13,35 +13,47 @@
 
 <div class="account">
     <h1 class="title">Login</h1>
-    <form id="regFrom" method="post" novalidate>
+    <form method="post" novalidate>
         {% csrf_token %}
         {% for foo in form %}
-                {% if foo.name == "code" %}
+                {% if foo.name == "pic_code" %}
                     <div class="form-group">
                         <label for="{{ foo.id_for_label }}"  >{{ foo.label }}:</label>
                         <div class="clearfix">
                             <div class="col-md-6" style="padding-left: 0">
                                 {{ foo }}
-                                <span class="error-msg"></span>
+                                <span class="error-msg">{{ foo.errors.0 }}</span>
                             </div>
-                            <div class="col-md-6"><input type="button" id="sendEmail" class="btn btn-default" value="点击获取验证码" onclick="getCode(1)"> </div>
+                            <div class="col-md-6">
+                                <img src="{% url 'web:picCode' %}" alt="网络错误，请刷新网页重试。" title="点击更换图片" id="imgCode">
+                            </div>
                         </div>
                     </div>
                 {% else %}
                     <div class="mb-3">
                         <label for="{{ foo.id_for_label }}" >{{ foo.label }}:</label>
                         {{ foo }}
-                        <span class="error-msg"></span>
+                        <span class="error-msg">{{ foo.errors.0 }}</span>
                     </div>
                 {% endif %}
             <div style="height: 13px"></div>
         {% endfor %}
-            <input type="button" class="btn btn-primary" onclick="ClickSubmit(1)" value="Login">
+            <input type="submit" class="btn btn-primary" value="Login">
     </form>
+    <span class="switchLogin"><a href="{% url 'web:login_email' %}">点击切换邮箱登录。</a></span>
 </div>
 
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'js/account.js' %}"></script>
+    <script>
+        // 等待DOM加载完毕后执行以下代码
+        $(function () {
+            $('#imgCode').click(function () {
+                // 通过点击事件绑定到具有id为'imgCode'的图像元素
+                var olbSrc = $(this).attr('src');   // 获取当前图像的src属性值
+                $(this).attr("src", olbSrc+"?");    // 更改图像的src属性值，通过添加'?'使其重新加载
+            })
+        })
+    </script>
 {% endblock %}
