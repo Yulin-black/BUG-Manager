@@ -1,6 +1,8 @@
 """
 用户注册相关功能：注册、短信、登录、注销
 """
+import datetime
+import uuid
 from io import BytesIO
 from django_redis import get_redis_connection
 from django.http import HttpResponse, JsonResponse
@@ -16,7 +18,18 @@ def register(request):
         print("register视图：", request.POST)
         form = account.RegisterModelForm(data=request.POST)
         if form.is_valid():
-            form.save()  # 保存数据
+            # instance = form.save(), 在数据库中新增一条数据，并将新增的数据对象赋值
+            instance = form.save()  # 保存数据
+            # # 获取免费的价格策略
+            # policy_object = models.PricePolicy.objects.filter(category=1, title="个人免费版").first()
+            # # 创建交易记录
+            # models.Transaction.objects.creare(
+            #     status = 2,
+            #     order = str(uuid.uuid4()),
+            #     user = instance,
+            #     price_policy = policy_object,
+            #     start_datetime = datetime.datetime.now()
+            # )
             return JsonResponse({"status": True, "data": "/login/"})
         else:
             return JsonResponse({"status": False, "error": form.errors})
@@ -65,8 +78,8 @@ def login(request):
     if request.method == 'POST':
         print("ajax获取到了邮箱:", request.POST.get('email'),
               "密码：", request.POST.get('password'),
-
               "验证码：", request.POST.get('pic_code'))
+
         form = account.PicCodeLoginForm(data = request.POST, request=request)
         if form.is_valid():
             user = form.cleaned_data.get('email')

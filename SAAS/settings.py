@@ -141,6 +141,19 @@ EMAIL_AUTO_TEMPLATE = {
     'retpasswd':50003,
 }
 
+################### 路由 白名单 ##########################
+WHITE_URL_LIST = [
+    '/',
+    '/error_404/',
+    '/send_email_info/',
+    "/register/",
+    '/login_email/',
+    '/login/',
+    '/logout/',
+    '/pic_code/',
+]
+
+
 try:
     from .local_settings import *
 except ImportError:

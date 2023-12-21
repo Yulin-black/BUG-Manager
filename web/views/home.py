@@ -6,3 +6,6 @@ def index(request):
     print("token",request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
     return render(request, "index.html",)
+
+def error_404(request):
+    return render(request, "404.html")

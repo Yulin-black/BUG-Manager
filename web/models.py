@@ -8,6 +8,7 @@ class UserInfo(models.Model):
     email = models.EmailField(verbose_name="邮箱", max_length=32)
     mobile_phone = models.CharField(verbose_name="手机号", max_length=32, blank=True, null=True)
 
+
 class PricePolicy(models.Model):
     """ 价格策略 """
     category_choices = (
@@ -30,13 +31,14 @@ class Transaction(models.Model):
     status_choice = (
         (1, "未支付"),(2, "已支付")
     )
-    status = models.SmallIntegerField(verbose_name="状态", choices=status_choice)
+    status = models.SmallIntegerField(verbose_name="状态", choices=status_choice,  default=1)
     order = models.CharField(verbose_name="订单号", max_length=64, unique=True) # 唯一索引
+
     user = models.ForeignKey(UserInfo, verbose_name="用户", on_delete=models.CASCADE)
     price_policy = models.ForeignKey(PricePolicy, on_delete=models.CASCADE, verbose_name="价格策略")
-    count = models.IntegerField(verbose_name="数量（年）", help_text="0为无期限")
 
-    price = models.IntegerField(verbose_name="实际支付价格")
+    count = models.IntegerField(verbose_name="数量（年）", help_text="0为无期限", default=0)
+    price = models.IntegerField(verbose_name="实际支付价格",  default=0)
 
     start_datetime = models.DateTimeField(verbose_name="开始时间", null=True, blank=True)
     end_datetime = models.DateTimeField(verbose_name="结束时间", null=True, blank=True)
