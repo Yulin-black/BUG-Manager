@@ -8,6 +8,8 @@ class UserInfo(models.Model):
     email = models.EmailField(verbose_name="邮箱", max_length=32)
     mobile_phone = models.CharField(verbose_name="手机号", max_length=32, blank=True, null=True)
 
+    project_order = models.ForeignKey(verbose_name="价格策略订单", to="Transaction", on_delete=models.CASCADE, blank=True, null=True)
+
 
 class PricePolicy(models.Model):
     """ 价格策略 """
@@ -37,11 +39,11 @@ class Transaction(models.Model):
     user = models.ForeignKey(UserInfo, verbose_name="用户", on_delete=models.CASCADE)
     price_policy = models.ForeignKey(PricePolicy, on_delete=models.CASCADE, verbose_name="价格策略")
 
-    count = models.IntegerField(verbose_name="数量（年）", help_text="0为无期限", default=0)
+    count = models.IntegerField(verbose_name="数量（年）", help_text="0为无期限")
     price = models.IntegerField(verbose_name="实际支付价格",  default=0)
 
-    start_datetime = models.DateTimeField(verbose_name="开始时间", null=True, blank=True)
-    end_datetime = models.DateTimeField(verbose_name="结束时间", null=True, blank=True)
+    start_datetime = models.DateTimeField(verbose_name="开始时间", auto_now_add=True)
+    end_datetime = models.DateTimeField(verbose_name="结束时间")
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
 class Project(models.Model):
