@@ -18,9 +18,10 @@ def project_list(request):
             return JsonResponse({"status": False, "error": form.errors})
     else:
         # GET
+
         project_dict = {"star":[], "my":[], "join":[]}
-        my_project_list = models.Project.objects.filter(createdBy=request.user.user)
-        join_project_list = models.ProjectUser.objects.filter(invitee=request.user.user)
+        my_project_list = models.Project.objects.filter(createdBy=request.user.user).all()
+        join_project_list = models.ProjectUser.objects.filter(invitee=request.user.user).all()
 
         for myPro in my_project_list:
             if myPro.star:

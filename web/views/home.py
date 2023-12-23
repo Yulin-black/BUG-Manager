@@ -8,4 +8,4 @@ def index(request):
     return render(request, "index.html",)
 
 def error_404(request):
-    return render(request, "404.html")
+    return render(request, "404.html", )

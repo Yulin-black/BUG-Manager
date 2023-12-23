@@ -1,0 +1,21 @@
+<ul class="dropdown-menu">
+    <li><i class="fa fa-list" aria-hidden="true"></i>&nbsp;&nbsp;我创建的</li>
+    {% if not my %}
+        <li>空</li>
+    {% endif %}
+    {% for pro in my %}
+        <li><a href="{% url 'web:manage:dashboard' pro.id %}">{{ pro.name }}</a></li>
+    {% endfor %}
+
+    <li role="separator" class="divider"></li>
+    <li><i class="fa fa-handshake-o" aria-hidden="true"></i>&nbsp;&nbsp;我参加的</li>
+    {% if not join %}
+        <li>空</li>
+    {% endif %}
+      {% for pro in join %}
+        <li><a href="{% url 'web:manage:dashboard' pro.project.id %}">{{ pro.project.name }}</a></li>
+    {% endfor %}
+
+    <li role="separator" class="divider"></li>
+    <li><a href="{% url 'web:project_list' %}">所有项目</a></li>
+</ul>

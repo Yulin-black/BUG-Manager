@@ -10,6 +10,8 @@ class User:
     def __init__(self):
         self.user = None
         self.price_policy = None
+        self.project = None
+        # self.path = None
 
 class AuthMiddleware(MiddlewareMixin):
     # 方法名固定
@@ -51,3 +53,47 @@ class AuthMiddleware(MiddlewareMixin):
                 request.user.price_policy = user_object.project_order.price_policy
 
             print("当前url:", path, "当前用户:", request.user.user.username, "当前价格策略:",request.user.price_policy.title)
+
+        # 方法一：判断是否有权访问该项目
+
+
+        # if "manage" in path:
+        #     path = path.split("/")
+        #     pro_id = path[2]
+        #
+        #     pro_object = models.Project.objects.filter(id=pro_id).first()
+        #     if pro_object:
+        #         if (pro_object.createdBy == request.user.user or
+        #             models.ProjectUser.objects.filter(project=pro_object, invitee=request.user.user).exists()):
+        #             return
+        #         else:
+        #             print("无权访问此项目")
+        #
+        #     else:
+        #         print("项目不存在")
+
+    def process_view(self, request, view, args, kwargs):
+        # 判断是否为 manage 开头
+        if not request.path.startswith('/manage/'):
+            return
+        pro_id = kwargs.get('pro_id')
+        # path = request.path.split("/")
+
+        pro_object = models.Project.objects.filter(id=pro_id).first()
+        if pro_object:      # 判断项目是否存在
+            if pro_object.createdBy == request.user.user:   #此项目是否为当前用户的
+                request.user.project = pro_object
+                # request.user.path = path[3]
+                return
+        else:
+            print("无此项目")
+            return redirect("web:project_list")
+
+        join_pro = models.ProjectUser.objects.filter(project=pro_object, invitee=request.user.user).first()
+        if join_pro:    # 判断当前用户是否加入了此项目
+            request.user.project = join_pro.project
+            # request.user.path = path[3]
+            return
+
+        print("无权访问此项目")
+        return redirect("web:project_list")

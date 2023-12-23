@@ -53,7 +53,8 @@
           <div class="panel-body">
               {% for pro in project_dict.star %}
                 <div class="item">
-                    <a href="#" class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
+                    <a href="{% url 'web:manage:dashboard' pro.id %}"
+                       class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
                     <div class="info">
                         <div>
                             <a href="{% url 'web:project_star' type='star' pro_id=pro.id %}"><i class="fa fa-star" aria-hidden="true" style="color: rgb(244,159,54)"></i></a>
@@ -79,7 +80,8 @@
           <div class="panel-body">
               {% for pro in project_dict.my %}
                 <div class="item">
-                    <a href="#" class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
+                    <a href="{% url 'web:manage:dashboard' pro.id %}"
+                       class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
                     <div class="info">
                         <div>
                             <a href="{% url 'web:project_star' type='my' pro_id=pro.id %}"><i class="fa fa-star" aria-hidden="true" style="color: rgb(203,203,203)"></i></a>
@@ -105,7 +107,8 @@
   <div class="panel-body">
       {% for pro in project_dict.join %}
         <div class="item">
-            <a href="#" class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
+            <a href="{% url 'web:manage:dashboard' pro.id %}"
+               class="title" style="background-color: {{ pro.get_color_display }}">{{ pro.name }}</a>
             <div class="info">
                 <div>
                      <a href="{% url 'web:project_star' type='join' pro_id=pro.id %}"><i class="fa fa-star" aria-hidden="true" style="color: rgb(203,203,203)"></i></a>
