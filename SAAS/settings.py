@@ -153,7 +153,6 @@ WHITE_URL_LIST = [
     '/pic_code/',
 ]
 
-
 try:
     from .local_settings import *
 except ImportError:

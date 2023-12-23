@@ -19,17 +19,7 @@ def register(request):
         form = account.RegisterModelForm(data=request.POST)
         if form.is_valid():
             # instance = form.save(), 在数据库中新增一条数据，并将新增的数据对象赋值
-            instance = form.save()  # 保存数据
-            # # 获取免费的价格策略
-            # policy_object = models.PricePolicy.objects.filter(category=1, title="个人免费版").first()
-            # # 创建交易记录
-            # models.Transaction.objects.creare(
-            #     status = 2,
-            #     order = str(uuid.uuid4()),
-            #     user = instance,
-            #     price_policy = policy_object,
-            #     start_datetime = datetime.datetime.now()
-            # )
+            form.save()  # 保存数据
             return JsonResponse({"status": True, "data": "/login/"})
         else:
             return JsonResponse({"status": False, "error": form.errors})

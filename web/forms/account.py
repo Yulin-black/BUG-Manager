@@ -7,9 +7,13 @@ from SAAS import settings
 from django.contrib.auth.hashers import make_password, check_password
 
 class AddCssCodeFrom:
+
+    noAddCss_label = []
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
+            if name in self.noAddCss_label:
+                continue
             field.widget.attrs['class'] = "form-control"
             field.widget.attrs['placeholder'] = f"请输入{field.label}"
 

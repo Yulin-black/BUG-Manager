@@ -15,4 +15,6 @@ urlpatterns = [
     path('pic_code/',account.pic_code, name='picCode'),
 
     path('project/list/', project.project_list, name="project_list"),
+    path('project/star/<type>/<pro_id>', project.project_star, name="project_star"),
+
 ]
