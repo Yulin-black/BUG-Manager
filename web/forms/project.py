@@ -6,7 +6,6 @@ from web import models
 
 class ProjectModelForm(AddCssCodeFrom, forms.ModelForm):
     noAddCss_label = ["color"]
-
     class Meta:
         model = models.Project
         fields = ['name','color','desc']

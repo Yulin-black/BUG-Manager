@@ -33,9 +33,10 @@ def manage_menu_list(request):
     ]
 
     for data in data_list:
-        if request.path == data['url']:
+        if data['url'] in request.path:
             data['class'] = "active"
             break
+
     return {"data_list":data_list}
 
 

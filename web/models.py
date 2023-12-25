@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+""" 用户 """
 class UserInfo(models.Model):
     username = models.CharField(verbose_name="用户名", max_length=64)
     password = models.CharField(verbose_name="密码", max_length=255)
@@ -10,7 +11,7 @@ class UserInfo(models.Model):
 
     project_order = models.ForeignKey(verbose_name="价格策略订单", to="Transaction", on_delete=models.CASCADE, blank=True, null=True)
 
-
+""" 价格策略 """
 class PricePolicy(models.Model):
     """ 价格策略 """
     category_choices = (
@@ -28,8 +29,9 @@ class PricePolicy(models.Model):
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
+""" 交易记录 """
 class Transaction(models.Model):
-    """ 交易记录 """
+
     status_choice = (
         (1, "未支付"),(2, "已支付")
     )
@@ -46,6 +48,7 @@ class Transaction(models.Model):
     end_datetime = models.DateTimeField(verbose_name="结束时间")
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
+""" 项目 """
 class Project(models.Model):
     """ 项目 """
     COLOR_CHOICES = (
@@ -64,8 +67,8 @@ class Project(models.Model):
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
+""" 项目参与者 """
 class ProjectUser(models.Model):
-    """ 项目参与者 """
     user = models.ForeignKey(UserInfo, related_name="admin", verbose_name="用户", on_delete=models.CASCADE)
     project = models.ForeignKey(Project, verbose_name="项目", on_delete=models.CASCADE)
 
@@ -74,8 +77,14 @@ class ProjectUser(models.Model):
 
     create_datetime = models.DateTimeField(verbose_name="加入时间", auto_now_add=True)
 
+""" Wiki """
+class Wiki(models.Model):
+    title = models.CharField(verbose_name="标题", max_length=64)
+    text = models.TextField(verbose_name="文本内容")
+    project = models.ForeignKey(to=Project, verbose_name="项目", on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', verbose_name="父级", related_name='children', on_delete=models.CASCADE, null=True, blank=True)
 
-
+    level = models.PositiveSmallIntegerField(verbose_name="层次", default=1)
 
 
 

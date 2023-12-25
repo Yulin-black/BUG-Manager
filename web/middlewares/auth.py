@@ -54,23 +54,6 @@ class AuthMiddleware(MiddlewareMixin):
 
             print("当前url:", path, "当前用户:", request.user.user.username, "当前价格策略:",request.user.price_policy.title)
 
-        # 方法一：判断是否有权访问该项目
-
-
-        # if "manage" in path:
-        #     path = path.split("/")
-        #     pro_id = path[2]
-        #
-        #     pro_object = models.Project.objects.filter(id=pro_id).first()
-        #     if pro_object:
-        #         if (pro_object.createdBy == request.user.user or
-        #             models.ProjectUser.objects.filter(project=pro_object, invitee=request.user.user).exists()):
-        #             return
-        #         else:
-        #             print("无权访问此项目")
-        #
-        #     else:
-        #         print("项目不存在")
 
     def process_view(self, request, view, args, kwargs):
         # 判断是否为 manage 开头

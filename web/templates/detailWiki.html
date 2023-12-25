@@ -1,0 +1,24 @@
+{% extends 'wiki.html' %}
+{% load project %}
+
+{% block button_rm_up %}
+    <a type="button" class="btn btn-primary btn-xs"
+       href="{% url 'web:manage:wiki_edit' request.user.project.id wiki_id %}">
+        <i class="fa fa-edit" aria-hidden="true"></i>
+        编辑
+    </a>
+    <a type="button" class="btn btn-danger btn-xs"
+       href="{% url 'web:manage:wiki_delete' request.user.project.id wiki_id %}">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+        删除
+    </a>
+{% endblock %}
+
+{% block addOrDetailWiki %}
+
+    <div>
+        <h1>{{ form.title }}</h1>
+        <h3>{{ form.text }}</h3>
+    </div>
+
+{% endblock %}

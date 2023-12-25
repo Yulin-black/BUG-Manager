@@ -1,4 +1,4 @@
-url = "http://127.0.0.1:8000"
+var url = "http://127.0.0.1:8000"
 // 提交注册数据
 function ClickSubmit(num) {
     var urlList=[
@@ -30,6 +30,7 @@ function ClickSubmit(num) {
 
 // 获取验证码
 function getCode(num) {
+
     var postType = [
         'register',
         'login',
