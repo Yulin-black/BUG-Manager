@@ -1,4 +1,6 @@
 from django.urls import path, include
+from django.conf.urls.static import static
+from SAAS import settings
 from .views import account, home, project, manage, wiki
 
 app_name = 'web'
@@ -31,8 +33,11 @@ urlpatterns = [
         path("wiki/del/<wiki_id>/", wiki.wiki_delete, name='wiki_delete'),
         path("wiki/wiki_edit/<wiki_id>/", wiki.wiki_edit, name='wiki_edit'),
         path('wiki/catalogWiki/', wiki.catalogWiki, name='catalogWiki'),
-
+        path('wiki_upload/',wiki.wiki_upload_cos, name="wiki_upload"),
 
         path("setting/", manage.setting, name="setting"),
     ],"manage"))),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

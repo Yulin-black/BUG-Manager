@@ -1,5 +1,10 @@
 {% extends 'wiki.html' %}
-{% load project %}
+{% load static %}
+
+{% block css_1 %}
+    <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.preview.min.css' %}">
+
+{% endblock %}
 
 {% block button_rm_up %}
     <a type="button" class="btn btn-primary btn-xs"
@@ -15,10 +20,37 @@
 {% endblock %}
 
 {% block addOrDetailWiki %}
-
-    <div>
-        <h1>{{ form.title }}</h1>
-        <h3>{{ form.text }}</h3>
+    <h1 style="text-align: center">{{ wiki_pro.title }}</h1><hr>
+    <div id="previewMarkdown">
+        <textarea>{{ wiki_pro.text }}</textarea>
     </div>
+{% endblock %}
+
+
+{% block js_2 %}
+
+    <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/marked.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/prettify.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/raphael.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/underscore.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/sequence-diagram.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/flowchart.min.js' %}"></script>
+    <script src="{% static 'plugin/editor-md/lib/jquery.flowchart.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            initPreivewMarkdown();
+        })
+        
+        function initPreivewMarkdown() {
+            editormd.markdownToHTML("previewMarkdown",{
+               // 过滤 文档中出现 style,script,iframe 会以字符串展示，不会解析
+                htmlDecode:"style,script,iframe"
+            });
+        }
+        
+    
+    </script>
 
 {% endblock %}

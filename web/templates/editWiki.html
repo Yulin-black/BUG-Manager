@@ -53,15 +53,24 @@
             initEdtorMd();
         });
 
+        var config_url = "http://127.0.0.1:8000"+"{% url 'web:manage:wiki' request.user.project.id %}"
+        var upload_url = "{% url 'web:manage:wiki_upload' request.user.project.id %}"
+
         function initEdtorMd() {
             editormd('editor',{
                 placeholder: "请输入内容",
                 height: 500,
                 path: "{% static 'plugin/editor-md/lib/' %}",
+                // 允许本地上传图片
+                imageUpload:true,
+                // 上传的文件格式
+                imageFormats:["jpg","jpeg","png","gif"],
+                // 上传的地址
+                imageUploadURL:upload_url,
             })
         }
 
-        var config_url = "http://127.0.0.1:8000"+"{% url 'web:manage:wiki' request.user.project.id %}"
+
         function initCatalog() {
             console.log("{% url 'web:manage:wiki' request.user.project.id %}")
 

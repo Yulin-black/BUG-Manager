@@ -11,6 +11,11 @@ class UserInfo(models.Model):
 
     project_order = models.ForeignKey(verbose_name="价格策略订单", to="Transaction", on_delete=models.CASCADE, blank=True, null=True)
 
+    bucket = models.CharField(verbose_name="COS桶名称", max_length=64)
+
+
+
+
 """ 价格策略 """
 class PricePolicy(models.Model):
     """ 价格策略 """
@@ -86,8 +91,7 @@ class Wiki(models.Model):
 
     level = models.PositiveSmallIntegerField(verbose_name="层次", default=1)
 
+class UploadedFile(models.Model):
 
-
-
-
-
+    file = models.FileField(upload_to='uploads/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
