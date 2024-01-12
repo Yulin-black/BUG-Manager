@@ -14,8 +14,5 @@ def statistics(request, pro_id):
     return render(request, "statistics.html")
 
 
-def file(request, pro_id):
-    return render(request, "file.html")
-
 def setting(request, pro_id):
     return render(request, "setting.html")

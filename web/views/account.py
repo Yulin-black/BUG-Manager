@@ -1,60 +1,33 @@
 """
 用户注册相关功能：注册、短信、登录、注销
 """
-import datetime
-import uuid
-import asyncio
+import time
 from asgiref.sync import sync_to_async
 from io import BytesIO
+import asyncio
 from django_redis import get_redis_connection
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+
+from SAAS import settings
 from web.forms import account
 from utils.email_send import send_email, random_str
 from utils.picture_verification_code import check_code
-from utils.decorators.create_bucket_dec import create_buckret_d
-from utils.tenxun_cos import create_bucket
-from utils.ProCoroutine import async_create_bucket
+from utils.assist import application_coroutines
 from web import models
 
-
-
-# import asyncio
-# from concurrent.futures import ThreadPoolExecutor
-#
-# loop = asyncio.get_event_loop()
-# executor = ThreadPoolExecutor()
-
-# 导入 线程池 库
-from concurrent.futures import ThreadPoolExecutor
-
-
-# 创建 线程池，维护了 5 个线程
-pool = ThreadPoolExecutor(5)
-
-
-def register(request):
+async def register(request):
     if request.method == 'POST':
+        a = time.time()
         print("register视图：", request.POST)
         form = account.RegisterModelForm(data=request.POST)
-        if form.is_valid():
-            bucket = str(random_str(12))
-            form.instance.bucket = bucket
-            # instance = form.save(), 在数据库中新增一条数据，并将新增的数据对象赋值
-            form.save()  # 保存数据
-            # 使用线程
-            # pool.submit(create_bucket, bucket)
-
-            # create_bucket(bucket)
-
-            # 启动异步存储桶创建
-            # 将异步函数提交到线程池中执行
-            # loop.run_in_executor(executor, async_create_bucket, bucket)
-
-            # 使用 sync_to_async 装饰器转换异步函数为同步函数
-            # create_bucket = sync_to_async(async_create_bucket)
-
-            # asyncio.create_task(async_create_bucket(bucket))
+        is_valid = await sync_to_async(form.is_valid)()
+        if is_valid:
+            bucket = str(random_str(12)).lower()
+            form.instance.bucket = f"{bucket}-{settings.COS_UID}"
+            await sync_to_async(form.save)()  # 保存数据
+            asyncio.create_task(application_coroutines(bucket))
+            print("用时：", time.time()-a )
             return JsonResponse({"status": True, "data": "/login/"})
         else:
             return JsonResponse({"status": False, "error": form.errors})

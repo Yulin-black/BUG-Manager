@@ -83,11 +83,36 @@ def wiki_edit(request, pro_id, wiki_id):
     return render(request, "editWiki.html",{"form":form})
 
 
+from utils.tenxun_cos import upload_file
 
 @csrf_exempt
 def wiki_upload_cos(request, pro_id):
     """ 保存到腾讯COS """
-    pass
+    file = request.FILES.get('editormd-image-file')
+    print(request.user.project.name)
+    if file:
+        file_ = str(file).split(".")
+        file_name = f"{file_[0]}-{str(time.time()).split('.')[0][-5:]}.{file_[-1]}"
+        path = f"/{request.user.project.name}/wiki/image/{file_name}"
+        # print(path)
+        # print(request.user.user.bucket)
+        url_ = upload_file(
+            bucket_name = request.user.user.bucket,
+            file=file,
+            path= path,
+        )
+        result = {
+            "success":1,
+            "message":None,
+            "url":url_,
+        }
+    else:
+        result = {
+            "success": 0,
+            "message": None,
+            "url": None,
+        }
+    return JsonResponse(result)
 
 @csrf_exempt
 def wiki_upload_local(request, pro_id):

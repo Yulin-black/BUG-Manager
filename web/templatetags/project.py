@@ -1,7 +1,8 @@
 from django.urls import reverse
-
+from SAAS import settings
 from web import models
 from django import template
+
 
 register = template.Library()
 
@@ -12,6 +13,17 @@ def peroject_list(request):
     join = models.ProjectUser.objects.filter(invitee=request.user.user).all()
     return {"my": my , "join": join }
 
+@register.simple_tag
+def bucket_info(request):
+    """ 用法
+    {% bucket_info as bucket %}
+    Bucket:"{{ bucket.bucket }}",
+    Region:"{{ bucket.region }}",
+    """
+    return {
+        "bucket": f"{request.user.user.bucket}-{settings.COS_UID}",
+        "region": settings.REGION
+    }
 
 # inclusion_tag
 @register.inclusion_tag("inclusion/project_list.html")

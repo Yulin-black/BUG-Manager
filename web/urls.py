@@ -1,7 +1,9 @@
 from django.urls import path, include
 from django.conf.urls.static import static
 from SAAS import settings
-from .views import account, home, project, manage, wiki
+from .views import (
+    account, home, project, manage, wiki, file
+)
 
 app_name = 'web'
 
@@ -26,8 +28,15 @@ urlpatterns = [
         path("dashboard/", manage.dashboard, name="dashboard"),
         path("issues/", manage.issues, name="issues"),
         path("statistics/", manage.statistics, name="statistics"),
-        path("file/", manage.file, name="file"),
 
+        # 文件管理
+        path("file/", file.file, name="file"),
+        path("file/operateFolder", file.operateFolder, name="operateFolder"),
+        path("file/delFolder", file.delFolder, name="delFolder"),
+        path("file/COS_CREDENTIAL",file.COS_CREDENTIAL, name='COS_CREDENTIAL'),
+        path('file/save_File',file.save_File, name="save_File"),
+
+        # wiki 管理
         path("wiki/", wiki.wiki, name="wiki"),
         path("wiki/add/", wiki.addWiki, name='add_wiki'),
         path("wiki/del/<wiki_id>/", wiki.wiki_delete, name='wiki_delete'),

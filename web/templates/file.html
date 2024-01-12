@@ -1,14 +1,426 @@
-{% extends  'layout/manage.html'%}
+{% extends 'layout/manage.html'%}
+{% load project %}
+{% load project %}
+{% load static %}
+{% load project %}
 
 {% block title %}
-	<title>file</title>
+	<title>文件</title>
 {% endblock %}
 
+{% block css %}
+<style>
+    .panel-primary .panel-heading{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        position: relative;
+    }
+    .breadcrumb{
+        position: absolute;
+        left: 100px;
+        top: 9px;
+    }
+    .container_li {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    .panel-body{
+        padding: 0;
+    }
+    .table tr:hover{
+        background-color: rgba(229, 229, 229, 0.7);
+    }
+    #uploadFile{
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100px;
+        right: 117px;
+        background-color: red;
+        overflow: hidden;
+    }
+    .upload:hover{
+        background-color: rgb(68,157,68);
+    }
+    .account {
+        width: 1432px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h1>file</h1>
+    <div class="account container-fluid">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+              <div style="padding-top: 7px">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  文件库
+              </div>
+
+              <ol class="breadcrumb">
+                  <li></li>
+                  <li>
+                      <i class="fa fa-home-primary"></i>
+                      <a href="{% url 'web:manage:file' request.user.project.id %}">
+                      {{ request.user.project.name }}
+                  </a></li>
+                  {% for key in pathdict %}
+                      {% if key %}
+                          <li><a href="{% url 'web:manage:file' request.user.project.id %}?fid={{ key.id }}">
+                            {{ key.name }}
+                          </a></li>
+                      {% endif %}
+                  {% endfor %}
+                  <li></li>
+              </ol>
+
+              <div class="function">
+                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal" data-whatever="新建目录">
+                      <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                      {{ parent.id }}
+                  </button>
+              </div>
+
+              <div class="function">
+                  <div type="button" class="btn btn-success upload">
+                      <i class="fa fa-upload" aria-hidden="true"></i>
+                        上传文件
+                      <input type="file" multiple name="uploadFile" id="uploadFile">
+                  </div>
+                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal" data-whatever="新建目录">
+                      <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                      新建目录
+                  </button>
+
+              </div>
+          </div>
+
+{#          <div class="panel-body">#}
+{#            <p>Some default panel content here. Nulla vitae elit libero, a pharetra augue. Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>#}
+{#          </div>#}
+
+          <table class="table">
+            <thead>
+              <tr>
+                  <th>文件名</th>
+                  <th>文件大小</th>
+                  <th>上传者</th>
+                  <th>更新时间</th>
+                  <th>编辑</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for foo in filepath %}
+                    <tr>
+                        {% if foo.file_type == 1 %}
+                            <td>
+                                <i class="fa fa-folder" aria-hidden="true"></i>
+{#                                <a href="{% url 'web:manage:file' request.user.project.id %}?path={{ foo.file_path }}{{ foo.name }}/&fid={{ foo.id }}">#}
+                                <a href="{% url 'web:manage:file' request.user.project.id %}?fid={{ foo.id }}">
+                                    {{ foo.name }}
+                                </a>
+                            </td>
+                        {% else %}
+                            <td>
+                                <i class="fa fa-file" aria-hidden="true"></i>
+                                {{ foo.name }}
+                            </td>
+                        {% endif %}
+                            <td>{% if foo.file_size %}
+                                {{ foo.file_size }}{% else %} -- {% endif %}
+                            </td>
+                            <td>{{ foo.update_user.username }}</td>
+                            <td>{{ foo.update_time }}</td>
+                            <td>
+                                <a class="btn btn-info btn-xs"
+                                   data-toggle="modal"
+                                   data-target="#addModal"
+                                   data-name="{{ foo.name }}"
+                                   data-fid="{{ foo.id }}"
+                                   data-whatever="重命名目录">
+                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                    重命名
+                                </a>
+                                <a class="btn btn-danger btn-xs"
+                                   data-toggle="modal"
+                                   id = "delFlder"
+                                   data-name="{{ foo.name }}"
+                                   data-fid="{{ foo.id }}"
+                                   data-target="#delModal">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                    删除
+                                </a>
+                            </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">New message</h4>
+        </div>
+        <div class="modal-body">
+            <form id="addnameform">
+                {% csrf_token %}
+                {% for foo in form %}
+                    <div class="form-group">
+                      <label for="{{ foo.id_for_label }}">
+                          {{ foo.label }}：
+                      </label>
+                        {{ foo }}
+                    <span class="error-msg"></span>
+                    </div>
+                {% endfor %}
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="addRenameDir()">Send message</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="delModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <h3>Whether you are sure to delete this directory?</h3>
+          <p>All files contained in the directory are deleted。</p>
+          <p>目录中包含的所有文件都将被删除。</p>
+          <p>
+            <button type="button" class="btn btn-danger" onclick="addRenameDir(rm=true)">Yes</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+          </p>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}
 
 {% block js %}
+<script src="{% static 'js/cos-js-sdk-v5.min.js' %}"></script>
+<script>
 
+    var uploadMode = false          //  上传的模式  添加 / 重命名
+    var uploadObjectId = false      //   重命名时 上传的对象id
+    var deleteObjectID = false
+    var FILE_PATH = "{{ request.user.project.name }}{{ parent.file_path }}{{ parent.name }}/"
+    var URL_FOLDER = '{% url 'web:manage:operateFolder' request.user.project.id %}'
+    var COS_CREDENTIAL = '{% url 'web:manage:COS_CREDENTIAL' request.user.project.id %}'
+    var URL_SAVE_File = "{% url 'web:manage:save_File' request.user.project.id %}"
+
+    console.log(COS_CREDENTIAL)
+    // 获取临时凭证
+    var cos = new COS({
+        // getAuthorization 必选参数
+        getAuthorization: function (options, callback) {
+            console.log("发送的请求")
+            $.ajax({
+                url: COS_CREDENTIAL, // 请将此处的 URL 替换为您后端服务的地址
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log("收到了！")
+                    let credentials = null;
+                    try {
+                        credentials = data.credentials;
+                    } catch (e) {
+                        console.log(e)
+                    }
+                    if (!data || !credentials) {
+                        console.error('凭证无效:\n', data);
+                        return;
+                    }
+                    callback({
+                        TmpSecretId: credentials.tmpSecretId,
+                        TmpSecretKey: credentials.tmpSecretKey,
+                        SecurityToken: credentials.sessionToken,
+                        StartTime: data.startTime, // 时间戳，单位秒，如：1580000000
+                        ExpiredTime: data.expiredTime // 时间戳，单位秒，如：1580000000
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('请求错误:', error);
+                }
+            });
+        }
+    });
+
+    $(function () {
+        bindUploadFile();
+    })
+
+    function bindUploadFile() {
+        $('#uploadFile').change(function () {
+            // 获取所有文件
+            var fileList = $(this)[0].files;
+            // var promises = [];
+            console.log(fileList)
+            var file_info = []
+            $.each(fileList, function (index, file) {
+                file_info.push({"name":file.name, "size":file.size})
+            });
+            console.log(file_info);
+            $.ajax({
+                url: COS_CREDENTIAL, // 请将此处的 URL 替换为您后端服务的地址
+                type: 'POST',
+                data: JSON.stringify(file_info),
+                dataType: 'json',
+                success: function(data) {
+                    console.log("收到了！",data)
+                    if(data.status){
+                        console.log("上传腾讯cos")
+                        $.each(fileList, function (index, file) {
+                            // var promise = new Promise(function (resolve, reject) {
+                                cos.putObject({
+                                    {% bucket_info request as bucket %}
+                                    Bucket:"{{ bucket.bucket }}",
+                                    Region:"{{ bucket.region }}",
+                                    Key: FILE_PATH + file.name,
+                                    Body:file,
+                                    onProgress:function (progressData) {
+                                        console.log("文件上传进度-->",JSON.stringify(progressData))
+                                        console.log(progressData)
+                                        if (progressData.percent === 1){
+                                            console.log("发送数据到后端。")
+                                             $.ajax({
+                                                url: URL_SAVE_File, // 请将此处的 URL 替换为您后端服务的地址
+                                                type: 'POST',
+                                                // data: JSON.stringify(file)+"&filePro={{ parent.id }}",
+                                                data: {"name":file.name, "size":file.size,
+                                                    "parent_file_path":"{{ parent.file_path }}",
+                                                    "parent_name":"{{ parent.name }}",
+                                                    "parent_id":"{{ parent.id }}"},
+                                                dataType: 'json',
+                                                success: function (data) {
+                                                    console.log("后端收到了！", data)
+                                                }, error: function(xhr, status, error) {
+                                                    console.error('请求错误:', error);
+                                                }
+                                            });
+                                        }
+                                    }
+                               // });
+                            });
+                            {#promises.push(promise);#}
+                        });
+/*
+                        if (promises.length > 0){
+                            console.log("像后端发送数据-1")
+                            console.log(promises)
+                            // 在所有上传操作都完成后执行 GET 请求
+                            Promise.all(promises).then(function() {
+                                console.log("像后端发送数据-2")
+                                // 所有文件上传完成后发送 POST请求
+                                $.ajax({
+                                    url: URL_SAVE_File, // 请将此处的 URL 替换为您后端服务的地址
+                                    type: 'POST',
+                                    data: JSON.stringify(file_info)+"&filePro={{ parent.id }}",
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        console.log("后端收到了！", data)
+                                    }, error: function(xhr, status, error) {
+                                        console.error('请求错误:', error);
+                                    }
+                                });
+                            }).catch(function(err) {
+                                console.error('文件上传失败', err);
+                            });
+                        }else{
+                            console.error('promises 变量未定义或为空。');
+                        }*/
+                    }else{
+                        console.log("文件超过大小。")
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('请求错误:', error);
+                }
+            });
+        });
+    }
+
+    function addRenameDir(rm=null) {
+        var formData = $('#addnameform').serialize()
+        console.log("url", URL_FOLDER)
+        // 输出表单数据
+        console.log("半",uploadMode)
+        var data;
+        if(uploadMode === 'create'){
+            console.log("sdasdasdsad半",uploadMode)
+            data = formData{% if parent.id %} + "&cr_parent="+{{parent.id}}{% endif %};
+        }
+        else if(uploadMode === "rename"){
+            if(rm){
+                data = formData+"&filePro="+deleteObjectID+"&rm_re_Pro=rm";
+            }else{
+                data = formData+"&filePro="+uploadObjectId;
+            }
+        }else {
+            return
+        }
+        console.log(data)
+        ajaxRequest(data)
+    }
+
+    function ajaxRequest(data) {
+        $.ajax({
+            url: URL_FOLDER,
+            type:"POST",
+            data: data,
+            dataType: "json",
+            success: function (res) {
+                console.log(res)
+                if (res.status) { // 如果返回的状态为真（成功）
+                    // 刷新当前页面
+                    {#location.reload();#}
+                } else { // 如果返回的状态为假（失败）
+                    $.each(res.error, function (key, value) { // 遍历错误信息
+                        $('#id_' + key).next().text("*" + value[0]); // 在对应的输入框下方显示错误信息
+                    });
+                }
+            }
+        })
+    }
+
+    $('#delModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        deleteObjectID = button.data('fid')
+        uploadMode = "rename"
+    });
+
+    $('#addModal').on('show.bs.modal', function (event) {
+        $('#id_name').next().text("");
+        var button = $(event.relatedTarget)
+        var recipient = button.data('whatever')
+        var name = button.data('name')
+        var fid = button.data("fid")
+        var modal = $(this)
+        modal.find('.modal-title').text(recipient)
+        console.log("全", name, fid)
+        if (name){
+            $("#id_name").val(name)
+            uploadObjectId = fid
+            uploadMode = "rename"
+        }else{
+            $("#id_name").val("");
+            uploadMode = "create"
+        }
+        {#modal.find('.modal-body input').val(recipient)#}
+    })
+</script>
 {% endblock %}
