@@ -13,7 +13,9 @@ def del_get_file_size(file, pro_id, request):
             list.append({"Key":delfile_path+files.name+"/"})
             list.extend(del_get_file_size(files, pro_id, request))
         elif files.file_type == 2:
-            request.user.project.usespace -= file.file_size
+            print(request.user.project.usespace, files.file_size,
+                  type(request.user.project.usespace), type(files.file_size))
+            request.user.project.usespace -= int(files.file_size)
             request.user.project.save()
             list.append({"Key":delfile_path+files.name})
             # delete_file(request.user.user.bucket, delfile_path, file.name)

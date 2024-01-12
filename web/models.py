@@ -68,7 +68,7 @@ class Project(models.Model):
 
     join_count = models.SmallIntegerField(verbose_name="参与人数", default=1)
     createdBy = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="创建者")
-    usespace = models.PositiveIntegerField(verbose_name="已使用空间", null=True, blank=True)
+    usespace = models.PositiveIntegerField(verbose_name="已使用空间", default=0)
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
@@ -105,7 +105,7 @@ class CosFileDir(models.Model):
     name = models.CharField(verbose_name="文件名或目录名", max_length=64)
 
     file_type = models.SmallIntegerField(verbose_name="类型", choices=FileDir_TYPR)
-    file_size = models.PositiveIntegerField(verbose_name="文件大小", null=True, blank=True)
+    file_size = models.PositiveIntegerField(verbose_name="文件大小", default=0)
     file_path = models.CharField(verbose_name="文件路径",max_length=255, null=True, blank=True, default="/")
 
     parent = models.ForeignKey('self', verbose_name="父级", related_name='children', on_delete=models.CASCADE, null=True, blank=True)

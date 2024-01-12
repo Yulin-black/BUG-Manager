@@ -121,7 +121,6 @@
                         {% if foo.file_type == 1 %}
                             <td>
                                 <i class="fa fa-folder" aria-hidden="true"></i>
-{#                                <a href="{% url 'web:manage:file' request.user.project.id %}?path={{ foo.file_path }}{{ foo.name }}/&fid={{ foo.id }}">#}
                                 <a href="{% url 'web:manage:file' request.user.project.id %}?fid={{ foo.id }}">
                                     {{ foo.name }}
                                 </a>

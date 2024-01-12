@@ -52,8 +52,10 @@ class AuthMiddleware(MiddlewareMixin):
                 # 存在 且 未过期 使用未过期的策略
                 request.user.price_policy = user_object.project_order.price_policy
 
-            print("当前url:", path, "当前用户:", request.user.user.username, "当前价格策略:",request.user.price_policy.title)
-
+            print("当前url:", path, "当前用户:", request.user.user.username)
+            print("当前价格策略:", request.user.price_policy.title, "项目个数:", request.user.price_policy.project_num,
+                  "项目人数:", request.user.price_policy.project_number,"项目大小:", request.user.price_policy.project_space,
+                  "文件大小:", request.user.price_policy.per_file_size)
 
     def process_view(self, request, view, args, kwargs):
         # 判断是否为 manage 开头
