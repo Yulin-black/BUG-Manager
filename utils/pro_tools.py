@@ -30,3 +30,10 @@ def generateNAV(fid):
     if file.parent:
         list.extend(generateNAV(file.parent_id))
     return list
+
+# 字节转化为 KB MB GB
+def convert_bytes(byte_size):
+    gb = byte_size / (1024 ** 3)
+    mb = byte_size / (1024 ** 2)
+    kb = byte_size / 1024
+    return kb, f"{gb:.2f} GB" if gb >= 1 else f"{mb:.2f} MB" if mb >=1 else f"{kb:.2f} KB"

@@ -2,6 +2,7 @@ from django.urls import reverse
 from SAAS import settings
 from web import models
 from django import template
+from utils.pro_tools import convert_bytes
 
 
 register = template.Library()
@@ -51,4 +52,15 @@ def manage_menu_list(request):
 
     return {"data_list":data_list}
 
-
+@register.simple_tag
+def project_capacity(request):
+    text = request.user.project.usespace
+    if text >= 1024:
+        text_ = f"{text / 1024:.2f} MB"
+        if text / 1024 >= 1024:
+            text_ = f"{text / (1024 ** 2):.2f} GB"
+    else:
+        text_ = f"{text:.2f} KB"
+    return {
+        "capacity": f"{text_} / {request.user.price_policy.project_space} GB"
+    }

@@ -24,7 +24,7 @@ async def register(request):
         is_valid = await sync_to_async(form.is_valid)()
         if is_valid:
             bucket = str(random_str(12)).lower()
-            form.instance.bucket = f"{bucket}-{settings.COS_UID}"
+            form.instance.bucket = f"{bucket}"
             await sync_to_async(form.save)()  # 保存数据
             asyncio.create_task(application_coroutines(bucket))
             print("用时：", time.time()-a )

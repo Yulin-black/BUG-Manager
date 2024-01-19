@@ -28,9 +28,9 @@ class PricePolicy(models.Model):
 
     price = models.PositiveIntegerField(verbose_name="价格")
     project_num = models.PositiveIntegerField(verbose_name="项目数")
-    project_number = models.PositiveIntegerField(verbose_name="项目成员数")
-    project_space = models.PositiveIntegerField(verbose_name="单项目空间")
-    per_file_size = models.PositiveIntegerField(verbose_name="单文件大小")
+    project_number = models.PositiveIntegerField(verbose_name="项目成员数", help_text="人数")
+    project_space = models.PositiveIntegerField(verbose_name="单项目空间", help_text="GB")
+    per_file_size = models.PositiveIntegerField(verbose_name="单文件大小", help_text="MB")
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
@@ -68,7 +68,7 @@ class Project(models.Model):
 
     join_count = models.SmallIntegerField(verbose_name="参与人数", default=1)
     createdBy = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="创建者")
-    usespace = models.PositiveIntegerField(verbose_name="已使用空间", default=0)
+    usespace = models.PositiveIntegerField(verbose_name="已使用空间", default=0, help_text="KB")
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
@@ -106,6 +106,7 @@ class CosFileDir(models.Model):
 
     file_type = models.SmallIntegerField(verbose_name="类型", choices=FileDir_TYPR)
     file_size = models.PositiveIntegerField(verbose_name="文件大小", default=0)
+    file_size_text = models.CharField(verbose_name="文件大小(kb,mb,gb)", default=0, max_length=16)
     file_path = models.CharField(verbose_name="文件路径",max_length=255, null=True, blank=True, default="/")
 
     parent = models.ForeignKey('self', verbose_name="父级", related_name='children', on_delete=models.CASCADE, null=True, blank=True)
