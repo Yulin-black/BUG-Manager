@@ -1,0 +1,98 @@
+{% extends 'layout/manage.html'%}
+{% load static %}
+{% block title %}
+	<title>wiki</title>
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/wiki.css' %}">
+    {% block css_1 %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="account container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div>
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    Wiki 文档
+                </div>
+                <div class="function">
+                    <a type="button" class="btn btn-success btn-xs" href="{% url 'web:manage:add_wiki' request.user.project.id %}">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        新建
+                    </a>
+                    {% block button_rm_up %}
+
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="panel-body container_li">
+
+                <div class="box1" id="box1">
+                    <ul id="catalog"></ul>
+                </div>
+
+                <div class="divider" id="divider"></div>
+
+                <div class="box2" id="box2">
+                    {% block addOrDetailWiki %}
+                        <div style="text-align: center;margin-top: 40px">
+                            <h2>《{{ request.user.project.name }}》Wiki文档库</h2>
+                            <a href="{% url 'web:manage:add_wiki' request.user.project.id %}">
+                                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                新建文章
+                            </a>
+                        </div>
+                    {% endblock %}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+
+    <script src="{% static 'js/wiki.js' %}"></script>
+    {% block js_2 %}{% endblock %}
+
+    {% block js_1 %}
+        <script>
+            $(function() {
+                initCatalog();
+            });
+
+            var config_url = "http://127.0.0.1:8000"+"{% url 'web:manage:wiki' request.user.project.id %}"
+
+            function initCatalog() {
+                console.log("{% url 'web:manage:wiki' request.user.project.id %}")
+                $.ajax({
+                    url: config_url + "catalogWiki/",
+                    method: 'GET', // 这里设置请求的方法，可以是 GET、POST 等
+                    dataType: 'json', // 设置期望的数据类型，例如 JSON
+                    success: function(res) {
+                        if (res.status){
+                            $.each(res.data, function (index, item) {
+                                // var url = config_url + "detail/" + item.id +"/ "
+                                var url = config_url + "?wiki_id=" + item.id
+                                var li = $("<li>")
+                                        .append($("<a>").attr("href", url)
+                                            .text(item.title))
+                                        .append($("<ul>")
+                                            .attr("id","id_"+item.id));
+                                $(item.parent?"#id_"+item.parent:"#catalog").append(li);
+                            })
+                        }
+                    },
+                });
+            }
+        </script>
+
+    {% endblock %}
+
+{% endblock %}

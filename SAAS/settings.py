@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os.path
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'web.middlewares.auth.AuthMiddleware',
 ]
 
 ROOT_URLCONF = 'SAAS.urls'
@@ -134,10 +135,27 @@ EMAIL_USE_SSL = True    # 是否使用隐式的安全连接
 # 个后端实际上并不发送电子邮件，而是将邮件内容输出到控制台（终端或命令行界面）供调试和开发使用。
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-GLOBAL_VARIABLE = {
-    "register" : "进入register的口令",
+EMAIL_AUTO_TEMPLATE = {
+    'login' : 50001,
+    'register' : 50002,
+    'retpasswd':50003,
 }
 
+################### 路由 白名单 ##########################
+WHITE_URL_LIST = [
+    '/',
+    '/error_404/',
+    '/send_email_info/',
+    "/register/",
+    '/login_email/',
+    '/login/',
+    '/logout/',
+    '/pic_code/',
+]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
+MEDIA_URL = '/media/'
 
 
 try:

@@ -1,0 +1,48 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %}
+	<title>登录</title>
+{% endblock %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'css/verify-register.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="account">
+    <h1 class="title">Login</h1>
+    <form id="regFrom" method="post" novalidate>
+        {% csrf_token %}
+        {% for foo in form %}
+                {% if foo.name == "code" %}
+                    <div class="form-group">
+                        <label for="{{ foo.id_for_label }}"  >{{ foo.label }}:</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding-left: 0">
+                                {{ foo }}
+                                <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6"><input type="button" id="sendEmail" class="btn btn-default" value="点击获取验证码" onclick="getCode(1)"> </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <label for="{{ foo.id_for_label }}" >{{ foo.label }}:</label>
+                        {{ foo }}
+                        <span class="error-msg"></span>
+                    </div>
+                {% endif %}
+            <div style="height: 13px"></div>
+        {% endfor %}
+            <input type="button" class="btn btn-primary" onclick="ClickSubmit(1)" value="Login">
+    </form>
+    <span class="switchLogin"><a href="{% url 'web:login' %}">点击切换密码登录</a></span>
+</div>
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/account.js' %}"></script>
+{% endblock %}

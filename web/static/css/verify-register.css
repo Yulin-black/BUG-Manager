@@ -8,7 +8,8 @@
     padding: 10px 30px 30px 30px;
     -webkit-box-shadow: 5px 10px 10px rgba(0, 0, 0, .05);
     box-shadow: 5px 10px 10px rgba(0, 0, 0, .1);
-)}
+    position: relative;
+}
 .account .title {
     font-size: 25px;
     font-weight: bold;
@@ -16,4 +17,17 @@
 }
 .account .form-group {
     margin-bottom: 20px;
+}
+
+.error-msg{
+    color: red;
+    position: absolute;
+    margin-left: 10px;
+    font-size: 12px;
+}
+
+.switchLogin{
+    position: absolute;
+    font-size: 12px;
+    right: 20px;
 }

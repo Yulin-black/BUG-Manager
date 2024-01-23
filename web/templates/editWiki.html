@@ -1,0 +1,98 @@
+{% extends 'wiki.html' %}
+{% load static  %}
+
+
+{% block css_1 %}
+	<link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
+    <style>
+        .editormd-fullscreen{
+            z-index: 1001;
+        }
+    </style>
+{% endblock %}
+
+{% block button_rm_up %}
+    <a type="button" class="btn btn-primary btn-xs"
+       href="{% url 'web:manage:wiki' request.user.project.id %}">
+        <i class="fa fa-edit" aria-hidden="true"></i>
+        退出编辑模式
+    </a>
+{% endblock %}
+
+{% block addOrDetailWiki %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% for foo in form %}
+        	<div class="form-group">
+                <label for="{{ foo.id_for_label }}">
+                    {{ foo.label }}
+                </label>
+                {% if foo.name == 'text' %}
+                    <div id="editor">
+                        {{ foo }}
+                    </div>
+                {% else %}
+                    {{ foo }}
+                {% endif %}
+                <span class="error-msg">{{ foo.errors.0 }}</span>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-default">提交</button>
+    </form>
+
+{% endblock %}
+
+
+
+{% block js_1 %}
+    <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
+    <script>
+        $(function() {
+            initCatalog();
+            initEdtorMd();
+        });
+
+        var config_url = "http://127.0.0.1:8000"+"{% url 'web:manage:wiki' request.user.project.id %}"
+        var upload_url = "{% url 'web:manage:wiki_upload' request.user.project.id %}"
+
+        function initEdtorMd() {
+            editormd('editor',{
+                placeholder: "请输入内容",
+                height: 500,
+                path: "{% static 'plugin/editor-md/lib/' %}",
+                // 允许本地上传图片
+                imageUpload:true,
+                // 上传的文件格式
+                imageFormats:["jpg","jpeg","png","gif"],
+                // 上传的地址
+                imageUploadURL:upload_url,
+            })
+        }
+
+
+        function initCatalog() {
+            console.log("{% url 'web:manage:wiki' request.user.project.id %}")
+
+                $.ajax({
+                    url: config_url + "catalogWiki/",
+                    method: 'GET', // 这里设置请求的方法，可以是 GET、POST 等
+                    dataType: 'json', // 设置期望的数据类型，例如 JSON
+                    success: function(res) {
+                        if (res.status){
+                            $.each(res.data, function (index, item) {
+                                // var url = config_url + "detail/" + item.id +"/ "
+                                var url = config_url + "wiki_edit/" + item.id + "/"
+                                var li = $("<li>")
+                                        .append($("<a>").attr("href", url)
+                                            .text(item.title))
+                                        .append($("<ul>")
+                                            .attr("id","id_"+item.id));
+                                $(item.parent?"#id_"+item.parent:"#catalog").append(li);
+                            })
+                        }
+                    },
+                });
+            }
+    </script>
+{% endblock %}
