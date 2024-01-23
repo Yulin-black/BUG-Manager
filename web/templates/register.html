@@ -11,20 +11,38 @@
 {% block content %}
 
 <div class="account">
-    <form method="post">
-    {% csrf_token %}
-     <h1 class="title">用户注册</h1>
-    {% for foo in form %}
-        <div class="mb-3">
-            <label for="{{ foo.id_for_label }}">{{ foo.label }}:</label>
-            {{ foo }}
-        </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary" style="margin-top: 15px">Submit</button>
+    <h1 class="title">用户注册</h1>
+    <form id="regFrom" method="post" novalidate>
+        {% csrf_token %}
+        {% for foo in form %}
+                {% if foo.name == "code" %}
+                    <div class="form-group">
+                        <label for="{{ foo.id_for_label }}"  >{{ foo.label }}:</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding-left: 0">
+                                {{ foo }}
+                                <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6"><input type="button" id="sendEmail" class="btn btn-default" value="点击获取验证码" onclick="getCode(0)"> </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <label for="{{ foo.id_for_label }}" >{{ foo.label }}:</label>
+                        {{ foo }}
+                        <span class="error-msg"></span>
+                    </div>
+                {% endif %}
+                <div style="height: 13px"></div>
+        {% endfor %}
+            <input type="button" class="btn btn-primary" onclick="ClickSubmit(0)" value="Submit">
     </form>
-    <p style="font-size: 12px;color: red;margin-top: 10px">注：请在10分钟内完成注册！</p>
+    <span class="switchLogin"><a href="{% url 'web:login' %}">已有账号？点击登录。</a></span>
 </div>
 
 {% endblock %}
 
+{% block js %}
+    <script src="{% static 'js/account.js' %}"></script>
+{% endblock %}
 

@@ -31,3 +31,6 @@ def send_email(email, tpl):
     else:
         data =  {"data":1001, "error":"网络异常！" }
     return data, code
+
+if __name__ == '__main__':
+    print()

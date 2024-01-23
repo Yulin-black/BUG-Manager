@@ -1,0 +1,60 @@
+.panel-body{
+    padding: 0;
+}
+.account {
+    width: 1432px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.container_li {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.box1,
+.box2 {
+    min-height: 750px;
+    overflow: auto;
+    transition: flex 0.2s ease; /* 添加过渡动画 */
+}
+
+.divider {
+    width: 2px;
+    cursor: col-resize;
+    background-color: #ccc;
+    position: absolute;
+    margin-left: -5px;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    left: 25%; /* 初始位置在页面整体宽度的30%处 */
+}
+
+.box1 {
+    flex: 2.5;
+    /*background-color: lightblue;*/
+}
+
+.box2 {
+    padding-left: 15px;
+    padding-right: 5px;
+    flex: 7.5;
+    /*background-color: lightgreen;*/
+}
+
+.box1 ul{
+    padding-left: 30px;
+}
+
+.box1 ul a{
+    display: block;
+    padding: 5px 0;
+}
+
+.panel-default .panel-heading{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
