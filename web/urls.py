@@ -8,3 +8,5 @@ urlpatterns = [
     path('verify/', account.verify, name='verify'),
     path("register/", account.register, name='register'),
 ]
+#   Your local changes to the following files would be overwritten b
+# y merge Please move or remove them before you merge.
