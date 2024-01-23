@@ -68,7 +68,9 @@ class Project(models.Model):
 
     join_count = models.SmallIntegerField(verbose_name="参与人数", default=1)
     createdBy = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="创建者")
-    usespace = models.PositiveIntegerField(verbose_name="已使用空间", default=0, help_text="KB")
+    # usespace = models.PositiveIntegerField(verbose_name="已使用空间", default=0, help_text="KB")
+    # usespace = models.PositiveBigIntegerField(verbose_name="已使用空间", default=0, help_text="BY")
+    usespace = models.BigIntegerField(verbose_name="已使用空间", default=0, help_text="BY")
 
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
@@ -116,3 +118,18 @@ class CosFileDir(models.Model):
     update_time = models.DateTimeField(verbose_name="最近更新时间", auto_now_add=True)
 
 
+from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+@receiver(post_save,sender=CosFileDir)
+@receiver(post_delete,sender=CosFileDir)
+def update_project_usespace(sender, instance, **kwargs):
+    # 获取与当前 CosFileDir 实例关联的 Project 模型实例。
+    project = instance.project
+    # 计算累加值
+    # 计算一个模型中 file_size 字段的总和，并将结果存储在 total_size 变量中。如果没有匹配的记录，它将返回 0 作为默认值。
+    # .aggregate() 方法来计算一个模型中特定字段的总和。
+    added_value = CosFileDir.objects.filter(project=project).aggregate(total_size=models.Sum('file_size'))['total_size'] or 0
+    # 更新 usespace 字段
+    project.usespace = added_value
+    project.save()

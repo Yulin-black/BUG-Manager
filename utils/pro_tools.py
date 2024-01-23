@@ -10,15 +10,10 @@ def del_get_file_size(file, pro_id, request):
         delfile_path = request.user.project.name + files.file_path
         if files.file_type == 1:
             # delete_file(request.user.user.bucket, delfile_path, files.name+"/")
-            list.append({"Key":delfile_path+files.name+"/"})
+            list.append({"Key":delfile_path+files.key+"/"})
             list.extend(del_get_file_size(files, pro_id, request))
         elif files.file_type == 2:
-            print(request.user.project.usespace, files.file_size,
-                  type(request.user.project.usespace), type(files.file_size))
-            request.user.project.usespace -= int(files.file_size)
-            request.user.project.save()
-            list.append({"Key":delfile_path+files.name})
-            # delete_file(request.user.user.bucket, delfile_path, file.name)
+            list.append({"Key":delfile_path+files.key})
     return list
 
 
@@ -36,4 +31,4 @@ def convert_bytes(byte_size):
     gb = byte_size / (1024 ** 3)
     mb = byte_size / (1024 ** 2)
     kb = byte_size / 1024
-    return kb, f"{gb:.2f} GB" if gb >= 1 else f"{mb:.2f} MB" if mb >=1 else f"{kb:.2f} KB"
+    return byte_size, f"{gb:.2f} GB" if gb >= 1 else f"{mb:.2f} MB" if mb >=1 else f"{kb:.2f} KB"

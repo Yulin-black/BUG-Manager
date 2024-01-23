@@ -108,14 +108,14 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th>文件名</th>
+                    <th style="width: 35%">文件名</th>
                     <th>文件大小</th>
                     <th>上传者</th>
                     <th>更新时间</th>
-                    <th>编辑</th>
+                    <th style="width: 15%">编辑</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="rowlist">
                 {% for foo in filepath %}
                     <tr>
                         {% if foo.file_type == 1 %}
@@ -141,15 +141,6 @@
                         <td>{{ foo.update_user.username }}</td>
                         <td>{{ foo.update_time }}</td>
                         <td>
-                            <a class="btn btn-info btn-xs"
-                               data-toggle="modal"
-                               data-target="#addModal"
-                               data-name="{{ foo.name }}"
-                               data-fid="{{ foo.id }}"
-                               data-whatever="重命名目录">
-                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                                重命名
-                            </a>
                             <a class="btn btn-danger btn-xs"
                                data-toggle="modal"
                                id="delFlder"
@@ -159,11 +150,27 @@
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                 删除
                             </a>
+                            <a class="btn btn-info btn-xs"
+                               data-toggle="modal"
+                               data-target="#addModal"
+                               data-name="{{ foo.name }}"
+                               data-fid="{{ foo.id }}"
+                               data-whatever="重命名目录">
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                重命名
+                            </a>
+                            {% if foo.file_size_text != "0" %}
+                                <a onclick="downloadfile('{{ foo.id }}')" class="btn btn-info btn-xs">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    下载
+                                </a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
+
         </div>
     </div>
 
@@ -225,6 +232,7 @@
         </div>
     </div>
 
+    {#    进度条    #}
     <div id="uploadProgress" class="uploadProgress hide">
         <div class="panel panel-info">
             <div class="panel-heading">
@@ -236,6 +244,7 @@
             </table>
         </div>
     </div>
+
     {#    进度条模板 #}
     <div class="hide">
         <table id="progressTemplate">
@@ -245,13 +254,53 @@
                     <div class="progress">
                         <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar"
                              aria-valuenow="45"
-                             aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                             aria-valuemin="0" aria-valuemax="100" style="width:0">
                             0%
                         </div>
                     </div>
                     <div class="progress-error"></div>
                 </td>
             </tr>
+        </table>
+    </div>
+
+    {#    文件列表模板#}
+    <div class="hide">
+        <table id="rowtable">
+            <tr>
+                <td>
+                    <i class="fa fa-file" aria-hidden="true"></i>
+                    <span class="name"></span>
+                </td>
+                <td class="size"></td>
+                <td class="uploaduser"></td>
+                <td class="uptime"></td>
+                <td class="edit">
+                    <a class="btn btn-danger btn-xs"
+                       data-toggle="modal"
+                       id="delFlder"
+                       data-name=""
+                       data-fid=""
+                       data-target="#delModal">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        删除
+                    </a>
+                    <a class="btn btn-info btn-xs"
+                       data-toggle="modal"
+                       data-target="#addModal"
+                       data-name=""
+                       data-fid=""
+                       data-whatever="重命名目录">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        重命名
+                    </a>
+                    <a class="btn btn-info btn-xs">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                        下载
+                    </a>
+                </td>
+            </tr>
+
         </table>
     </div>
 
@@ -266,10 +315,11 @@
         var uploadMode = false          //  上传的模式  添加 / 重命名
         var uploadObjectId = false      //   重命名时 上传的对象id
         var deleteObjectID = false
-        var FILE_PATH = "{{ request.user.project.name }}{{ parent.file_path }}{{ parent.name }}/"
+        var FILE_PATH = "{{ request.user.project.name }}{{ parent.file_path }}{{ parent.key }}/"
         var URL_FOLDER = '{% url 'web:manage:operateFolder' request.user.project.id %}'
         var COS_CREDENTIAL = '{% url 'web:manage:COS_CREDENTIAL' request.user.project.id %}'
         var URL_SAVE_File = "{% url 'web:manage:save_File' request.user.project.id %}"
+        var DOWNLOAD_FILE = "{% url 'web:manage:downloadFile' request.user.project.id %}"
 
 
         // 获取临时凭证
@@ -303,6 +353,9 @@
                     },
                     error: function (xhr, status, error) {
                         console.error('请求错误:', error);
+                        $('#errModal').modal('show').find("p").text(
+                            "请关闭VPN后在尝试。" + error
+                        );
                     }
                 });
             }
@@ -312,6 +365,27 @@
             bindUploadFile();
         })
 
+        function downloadfile(fid) {
+
+            // 发送 GET 请求   console.log("下载文件。。。。。。", fid)
+            $.get(DOWNLOAD_FILE + "?fid=" + fid, function (data) {
+                // 请求成功的回调函数
+                console.log('Response data:', data.value);
+                if (data.status) {
+                    cos.getObjectUrl({
+                        {% bucket_info request as bucket %}
+                        Bucket: "{{ bucket.bucket }}",
+                        Region: "{{ bucket.region }}",
+                        Key: FILE_PATH + data.value,
+                    }, function (err, data) {
+                        if (err) return console.log(err);
+                        const downloadUrl = data.Url + (data.Url.indexOf('?') > -1 ? '&' : '?') + 'response-content-disposition=attachment';
+                        window.open(downloadUrl);
+                    });
+                }
+            })
+        }
+
         function bindUploadFile() {
             $('#uploadFile').change(function () {
                 // 获取所有文件
@@ -319,9 +393,18 @@
                 console.log(fileList)
                 var file_info = []
                 $.each(fileList, function (index, file) {
-                    file_info.push({"name": file.name, "size": file.size})
+                    file["key"] = generateRandomString() + "-" + file.name
+                    file_info.push({
+                        "name": file.name, "size": file.size,
+                        "parent":
+                            {% if parent.id %}
+                                {{ parent.id }}
+                            {% else %}
+                                null
+                            {% endif %}
+                    });
                 });
-                console.log(file_info);
+
                 $.ajax({
                     url: COS_CREDENTIAL, // 请将此处的 URL 替换为您后端服务的地址
                     type: 'POST',
@@ -341,7 +424,7 @@
                                     {% bucket_info request as bucket %}
                                     Bucket: "{{ bucket.bucket }}",
                                     Region: "{{ bucket.region }}",
-                                    Key: FILE_PATH + file.name,
+                                    Key: FILE_PATH + file.key,
                                     Body: file,
                                     onProgress: function (progressData) {
                                         console.log("文件上传进度-->", file.name, progressData)
@@ -353,44 +436,65 @@
                                                 $tr.remove();
                                                 if (upload.find('table tr').length === 0) {
                                                     upload.addClass("hide");
-                                                    location.reload();
+                                                    // location.reload();
                                                 }
                                             }, 2000); // 2000毫秒（即2秒）
-                                            console.log(file.name, "发送数据到后端。");
-                                            $.ajax({
-                                                url: URL_SAVE_File, // 请将此处的 URL 替换为您后端服务的地址
-                                                type: 'POST',
-                                                data: {
-                                                    "name": file.name, "size": file.size,
-                                                    "parent_file_path": "{{ parent.file_path }}",
-                                                    "parent_name": "{{ parent.name }}",
-                                                    "parent_id": "{{ parent.id }}"
-                                                },
-                                                dataType: 'json',
-                                                success: function (data) {
-                                                    console.log("后端收到了！", file.name)
-                                                }, error: function (xhr, status, error) {
-                                                    console.error('请求错误:', error);
-                                                }
-                                            });
                                         }
+                                    }
+                                }, function (err, data) {
+                                    if (data && data.statusCode === 200) {
+                                        // console.log(data)
+                                        console.log(file.name, "发送数据到后端。");
+                                        $.ajax({
+                                            url: URL_SAVE_File, // 请将此处的 URL 替换为您后端服务的地址
+                                            type: 'POST',
+                                            data: {
+                                                "name": file.name, "size": file.size, "key": file.key,
+                                                "parent_file_path": "{{ parent.file_path }}",
+                                                "parent_key": "{{ parent.key }}",
+                                                "parent_id": "{{ parent.id }}",
+                                                "etag": data.ETag,
+                                            },
+                                            dataType: 'json',
+                                            success: function (data) {
+                                                console.log("后端收到了！", file.name)
+                                                console.log(data)
+                                                console.log(data.result.name)
+                                                var $newTr = $('#rowtable').find('tr').clone();
+                                                $newTr.find(".name").text(data.result.name);
+                                                $newTr.find('.size').text(data.result.size);
+                                                $newTr.find('.uploaduser').text(data.result.upload_user);
+                                                $newTr.find('.uptime').text(data.result.time);
+                                                $newTr.find('.edit a:last').attr('onclick', 'downloadfile(' + data.result.id + ')');
+                                                $newTr.find('.edit').find('a').each(function () {
+                                                    $(this).data('name', data.result.name);
+                                                    $(this).data('fid', data.result.id);
+                                                })
+                                                $("#rowlist").append($newTr);
+                                            }, error: function (xhr, status, error) {
+                                                alert(error)
+                                                console.error('请求错误:', error);
+                                                // tr.find('.progress-error').text('请求错误22:', error);
+                                            }
+                                        });
+                                    } else {
+                                        tr.find('.progress-error').text("上传失败！");
                                     }
                                 });
                             });
-
                         } else {
-                            console.log("文件超过大小。", data.error)
+                            console.log("后端传回报错信息。", data.error)
                             $('#errModal').modal('show').find("p").text(
                                 data.error
                             );
-                            {#alert(data.error)#}
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.error('请求错误:', error);
+                        console.error('请求错误11:', error);
+                        // tr.find('.progress-error').text('请求错误11:', error);
                     }
                 });
-                console.log("全都结束了！！！！！")
+
             });
         }
 
@@ -456,5 +560,18 @@
             }
             {#modal.find('.modal-body input').val(recipient)#}
         })
+
+        function generateRandomString() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomString = '';
+
+            for (let i = 0; i < 8; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                randomString += characters.charAt(randomIndex);
+            }
+
+            return randomString;
+        }
+
     </script>
 {% endblock %}

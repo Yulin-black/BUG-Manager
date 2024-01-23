@@ -32,7 +32,7 @@ urlpatterns = [
         # 文件管理
         path("file/", file.file, name="file"),
         path("file/operateFolder", file.operateFolder, name="operateFolder"),
-        path("file/delFolder", file.delFolder, name="delFolder"),
+        path("file/downloadFile", file.downloadFile, name="downloadFile"),
         path("file/COS_CREDENTIAL",file.COS_CREDENTIAL, name='COS_CREDENTIAL'),
         path('file/save_File',file.save_File, name="save_File"),
 

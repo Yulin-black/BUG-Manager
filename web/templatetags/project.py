@@ -55,12 +55,15 @@ def manage_menu_list(request):
 @register.simple_tag
 def project_capacity(request):
     text = request.user.project.usespace
-    if text >= 1024:
-        text_ = f"{text / 1024:.2f} MB"
-        if text / 1024 >= 1024:
-            text_ = f"{text / (1024 ** 2):.2f} GB"
-    else:
-        text_ = f"{text:.2f} KB"
+    _, text_ = convert_bytes(text)
     return {
         "capacity": f"{text_} / {request.user.price_policy.project_space} GB"
     }
+
+
+
+"""
+Failed to connect to 127.0.0.1 port 7890 after 2056 ms: Couldn't conne
+ct to server
+
+"""

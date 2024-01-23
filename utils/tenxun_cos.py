@@ -34,7 +34,6 @@ config = CosConfig(
 )
 client = CosS3Client(config)
 
-
 def create_bucket(username):
     print("创建桶-请求开始！")
     bucket = f'{username}-{COS_UID}'
@@ -75,6 +74,7 @@ def create_bucket(username):
     return "创建桶-请求结束！"
 
 def upload_file(bucket_name, path, file):
+    """ 上传文件 """
     Bucket = f'{bucket_name}-{COS_UID}'
     key = path
     """ 创建文件 """
@@ -91,6 +91,7 @@ def upload_file(bucket_name, path, file):
 
 # 删除单个文件
 def delete_file(bucket_name, path, file):
+    """ 删除单个文件 """
     Bucket = f'{bucket_name}-{COS_UID}'
     key = path+file
     print("key",key)
@@ -102,10 +103,11 @@ def delete_file(bucket_name, path, file):
     print(response)
     return f"https://{Bucket}.cos.{region}.myqcloud.com{key}"
 
-# 批量删除文件
 def delete_file_list(bucket_name, list):
+    # 批量删除文件
     Bucket = f'{bucket_name}-{COS_UID}'
-
+    # for i in list:
+    #     print(i)
     re = client.delete_objects(
         Bucket=Bucket,
         Delete={
@@ -119,20 +121,23 @@ def delete_file_list(bucket_name, list):
         }
     )
     print("Re",re)
-def upload_ssfile(bucket_name, path, file):
-    Bucket = f'{bucket_name}-{COS_UID}'
-    key = path
-    """ 创建文件 """
-    response = client.upload_file(
-        Bucket= Bucket,
-        Key=key,
-        LocalFilePath=file,
-        PartSize=10,
-        MAXThread=10,
-    )
-    # print(response['ETag'])
-    return f"https://{Bucket}.cos.{region}.myqcloud.com{key}"
+
+# def upload_ssfile(bucket_name, path, file):
+#     Bucket = f'{bucket_name}-{COS_UID}'
+#     key = path
+#     """ 创建文件 """
+#     response = client.upload_file(
+#         Bucket= Bucket,
+#         Key=key,
+#         LocalFilePath=file,
+#         PartSize=10,
+#         MAXThread=10,
+#     )
+#     # print(response['ETag'])
+#     return f"https://{Bucket}.cos.{region}.myqcloud.com{key}"
+
 def get_credential(example, ):
+    """ 获取 COS 密钥 """
     config = {
         # 请求URL，域名部分必须和domain保持一致
         # 使用外网域名时：https://sts.tencentcloudapi.com/
@@ -162,6 +167,7 @@ def get_credential(example, ):
         'allow_actions': [
             # 简单上传
             'name/cos:PutObject',
+            'name/cos:GetObject'
             # 'name/cos:PostObject',
             # # 分片上传
             # 'name/cos:InitiateMultipartUpload',
@@ -182,11 +188,27 @@ def get_credential(example, ):
         print(e)
 
 
+def check_file(bucket_name, key):
+    Bucket = f'{bucket_name}-{COS_UID}'
+    data = client.head_object(
+        Bucket = Bucket,
+        Key = key
+    )
+    return data
+
+
+
 if __name__ == '__main__':
     # create_bucket("a")
     name = "ztgkrthwb5oj"
     file = ""
     path = "齐奥斯威/齐奥斯威/顺丰速递/"
+    list = [
+        {
+            "Key": "迷你版/现在才222/"
+        },
+    ]
     # upload_ssfile(name, path, file)
-    delete_file(name,path,file)
-    # delete_file_list(name, list)
+    # delete_file(name,path,file)
+    delete_file_list(name, list)
+
