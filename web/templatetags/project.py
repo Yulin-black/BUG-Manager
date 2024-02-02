@@ -22,7 +22,7 @@ def bucket_info(request):
     Region:"{{ bucket.region }}",
     """
     return {
-        "bucket": f"{request.user.user.bucket}-{settings.COS_UID}",
+        "bucket": f"{request.user.project.createdBy.bucket}-{settings.COS_UID}",
         "region": settings.REGION
     }
 
@@ -31,7 +31,7 @@ def bucket_info(request):
 def project_list(request):
     my = models.Project.objects.filter(createdBy=request.user.user).all()
     join = models.ProjectUser.objects.filter(invitee=request.user.user).all()
-    return {"my": my , "join": join }
+    return {"my": my , "join": join ,"request":request}
 
 
 @register.inclusion_tag('inclusion/manage_menu_list.html')

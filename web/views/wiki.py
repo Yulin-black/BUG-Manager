@@ -93,7 +93,7 @@ def wiki_upload_cos(request, pro_id):
     if file:
         file_ = str(file).split(".")
         file_name = f"{file_[0]}-{str(time.time()).split('.')[0][-5:]}.{file_[-1]}"
-        path = f"/{request.user.project.name}/wiki/image/{file_name}"
+        path = f"/wiki/image/{file_name}"
         # print(path)
         # print(request.user.user.bucket)
         url_ = upload_file(

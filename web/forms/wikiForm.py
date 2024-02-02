@@ -1,7 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from web import models
-from .account import AddCssCodeFrom
+from .BOOT_STYLE import AddCssCodeFrom
+
 
 class AddOrEditWikiModelForm(AddCssCodeFrom, forms.ModelForm):
 

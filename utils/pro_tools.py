@@ -4,7 +4,7 @@ from utils.tenxun_cos import delete_file
 # 释放 该目录下所有文件的 容量  并 从cos中删除 该目录下所有文件
 def del_get_file_size(file, pro_id, request):
     list = []
-    files_pro = models.CosFileDir.objects.filter(parent=file, project_id=pro_id, update_user=request.user.user).all()
+    files_pro = models.CosFileDir.objects.filter(parent=file, project_id=pro_id).all()
     for files in files_pro:
         # print(files.name)
         delfile_path = request.user.project.name + files.file_path

@@ -34,9 +34,9 @@ config = CosConfig(
 )
 client = CosS3Client(config)
 
-def create_bucket(username):
+def create_bucket(bucket_name):
     print("创建桶-请求开始！")
-    bucket = f'{username}-{COS_UID}'
+    bucket = f'{bucket_name}-{COS_UID}'
     try:
         # 创建桶
         res = client.create_bucket(
@@ -72,6 +72,42 @@ def create_bucket(username):
         return "创建桶-请求结束-异常！"
     print("创建桶-请求结束！",res)
     return "创建桶-请求结束！"
+
+def delete_bucket(bucket_name):
+    """ 删除桶  """
+    # 桶名称
+    bucket = f'{bucket_name}-{COS_UID}'
+    # 删除桶中所有文件   找到所有文件 在 删除
+    # 查看桶中所有的文件 一次最多返回1000个 可使用 while True，不断获取
+    while True:
+        all_objects = client.list_objects(bucket)
+        # Contents 为空表示已经获取完了 或 if all_objects.get('IsTruncated') == "false" 也可
+        if not all_objects.get('Contents'):
+            break
+
+        file_l = all_objects.get('Contents')
+        for i in [{"Key": i['Key']} for i in file_l]:
+            print(i)
+
+        # 批量删除
+        client.delete_objects(
+            Bucket=bucket,
+            Delete={
+                "Object": [{"Key": i['Key']} for i in file_l],
+                "Quiet": "true",
+            }
+        )
+    # 删除桶中所有碎片
+    while True:
+        all_uploads = client.list_multipart_uploads(bucket)
+        uploads = all_uploads.get('Upload')
+        if not uploads:
+            break
+        for item in uploads:
+            # 挨个 删除 碎片
+            client.abort_multipart_upload(bucket,item['Key'],item['UploadId'])
+    # 删除桶
+    client.delete_bucket(bucket)
 
 def upload_file(bucket_name, path, file):
     """ 上传文件 """
@@ -120,8 +156,6 @@ def delete_file_list(bucket_name, list):
             "Quiet": "true",
         }
     )
-    print("Re",re)
-
 # def upload_ssfile(bucket_name, path, file):
 #     Bucket = f'{bucket_name}-{COS_UID}'
 #     key = path
@@ -136,7 +170,7 @@ def delete_file_list(bucket_name, list):
 #     # print(response['ETag'])
 #     return f"https://{Bucket}.cos.{region}.myqcloud.com{key}"
 
-def get_credential(example, ):
+def get_credential(bucket_name):
     """ 获取 COS 密钥 """
     config = {
         # 请求URL，域名部分必须和domain保持一致
@@ -157,7 +191,7 @@ def get_credential(example, ):
         #     'https': 'xx'
         # },
         # 换成你的 bucket
-        'bucket': f'{example}-{settings.COS_UID}',
+        'bucket': f'{bucket_name}-{settings.COS_UID}',
         # 换成 bucket 所在地区
         'region': settings.REGION,
         # 这里改成允许的路径前缀，可以根据自己网站的用户登录态判断允许上传的具体路径
@@ -187,8 +221,8 @@ def get_credential(example, ):
     except Exception as e:
         print(e)
 
-
 def check_file(bucket_name, key):
+    """ 检查文件 """
     Bucket = f'{bucket_name}-{COS_UID}'
     data = client.head_object(
         Bucket = Bucket,
@@ -197,18 +231,20 @@ def check_file(bucket_name, key):
     return data
 
 
-
 if __name__ == '__main__':
     # create_bucket("a")
-    name = "ztgkrthwb5oj"
-    file = ""
-    path = "齐奥斯威/齐奥斯威/顺丰速递/"
-    list = [
-        {
-            "Key": "迷你版/现在才222/"
-        },
-    ]
+    name = "test"
+    # delete_bucket(name)
+
+
+    # file = ""
+    # path = "齐奥斯威/齐奥斯威/顺丰速递/"
+    # list = [
+    #     {
+    #         "Key": "迷你版/现在才222/"
+    #     },
+    # ]
     # upload_ssfile(name, path, file)
     # delete_file(name,path,file)
-    delete_file_list(name, list)
+    # delete_file_list(name, list)
 

@@ -63,15 +63,18 @@ def operateFolder(request, pro_id):
             return JsonResponse(data)
         elif filePro.isdecimal():
             if rm_re_Pro == "rm":           # 删除
-                file = models.CosFileDir.objects.filter(id=int(filePro),project_id=pro_id,update_user=request.user.user).first()
+                if request.user.project.createdBy == request.user.user:     # 盘都时候为 当前项目的创建者
+                    file = models.CosFileDir.objects.filter(id=int(filePro), project_id=pro_id).first()
+                else:
+                    file = models.CosFileDir.objects.filter(id=int(filePro),project_id=pro_id,update_user=request.user.user).first()
                 if file:
                     delfile_path = request.user.project.name + file.file_path
                     if file.file_type == 1 :   # 删除 目录
                         list = [{"Key":delfile_path+file.key+"/"}]
                         list.extend(del_get_file_size(file, pro_id, request))
-                        delete_file_list(request.user.user.bucket, list)        # 批量删除
+                        delete_file_list(request.user.project.createdBy.bucket, list)        # 批量删除
                     else:                       # 删除 文件
-                        delete_file(request.user.user.bucket, delfile_path, file.key)  # 单文件删除
+                        delete_file(request.user.project.createdBy.bucket, delfile_path, file.key)  # 单文件删除
                     file.delete()
                     data = {
                         "status": True,
@@ -79,7 +82,7 @@ def operateFolder(request, pro_id):
                 else:
                     data = {
                         "status": False,
-                        "error": "对象不存在。",
+                        "error": "无权删除。",
                     }
                 return JsonResponse(data)
             else:                           # 重命名 目录
@@ -140,7 +143,7 @@ def COS_CREDENTIAL(request, pro_id):
                 return JsonResponse({"status": False, "error": msg})
             total_size += int(info['size'])
 
-        print("总容量为：",total_size,"用户:",price_policy_one )
+        print("总容量为：",total_size)
 
         if (request.user.project.usespace + total_size) > price_policy_all:
             _, text_1 = convert_bytes(request.user.project.usespace)
@@ -148,8 +151,9 @@ def COS_CREDENTIAL(request, pro_id):
             msg = f"当前套餐总容量为：{price_policy.project_space}GB，当前项目已使用：{text_1}，本此添加：{text_2},超出总容量大小，请升级后在添加。"
             return JsonResponse({"status": False, "error": msg})
         return JsonResponse({"status": True})
+
     else:
-        date = get_credential(request.user.user.bucket)
+        date = get_credential(request.user.project.createdBy.bucket)
         return JsonResponse(date)
 
 @csrf_exempt
@@ -159,11 +163,11 @@ def save_File(request, pro_id):
         etag = info.get('etag', None)
         if etag:
             by, text = convert_bytes(int(info.get('size')))
-            print("名字为：", info.get("name"),info)
+            # print("名字为：", info.get("name"),info)
             file_path = info.get('parent_file_path') + info.get('parent_key') + "/"
             key_ = info.get('key')
             key = request.user.project.name + file_path + key_
-            data = check_file(request.user.user.bucket, key)
+            data = check_file(request.user.project.createdBy.bucket, key)
             ETag = data.get('ETag',None)
             if ETag and (ETag == etag):
                 # 创建CosFileDir
