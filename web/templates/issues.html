@@ -34,8 +34,7 @@
         }
 
         .list_info span:nth-child(1) {
-            background-color: #62c9ff;
-            color: #ffffff;
+        {#background-color: #62c9ff;#} color: #ffffff;
             border-radius: 5px;
             margin-left: -5px;
             display: inline-block;
@@ -70,6 +69,39 @@
         .table a {
             text-decoration: none;
         }
+
+        .filter-area .item {
+            margin-bottom: 15px;
+        }
+
+        .filter-area .item .title {
+            padding: 5px 0;
+        }
+
+        .filter-area .item .check-list:nth-child(-n+3) > a {
+            text-decoration: none;
+            display: inline-block;
+            min-width: 65px;
+        }
+
+        .filter-area .item .check-list label {
+            font-size: 15px;
+            font-weight: 500;
+            margin-left: 3px;
+        }
+
+        .filter-area .item .check-list:nth-child(-n+3) > a:hover {
+            font-weight: 1000;
+        }
+
+        .filter-area .item .check-list .cell {
+            margin-right: 10px;
+        }
+
+        .panel-body-self {
+            padding: 0 15px 0 25px;
+        }
+
     </style>
 {% endblock %}
 
@@ -82,7 +114,19 @@
                         筛选</h4>
                 </div>
                 <div class="panel-body">
-                    筛选选项
+                    {% for filter in filter_list %}
+                        <div class="panel-body-self filter-area">
+                            <div class="item">
+                                <div class="title">{{ filter.title }}</div>
+                                <div class="check-list">
+                                    {% for foo in filter.filter_sift %}
+                                        {{ foo }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
                 </div>
             </div>
         </div>
@@ -120,7 +164,7 @@
                                     <div><a href="{% url 'web:manage:issDetail' request.user.project.id foo.id %}">
                                         {{ foo.subject }}</a></div>
                                     <div class="list_info">
-                                        <span>{{ foo.module }}</span>
+                                        <span style="background-color: {{ foo.module.get_color_display }}">{{ foo.module }}</span>
                                         <span>
                                             <i class="fa fa-refresh" aria-hidden="true"></i>
                                             {{ foo.get_state_display }}
@@ -152,7 +196,7 @@
                         </tbody>
                     </table>
                 </div>
-{#                分页#}
+                {#                分页#}
                 {{ cont|safe }}
             {% endblock %}
         </div>
@@ -324,7 +368,36 @@
         $(function () {
             bindBootStrapShowEvent();
             initDatePicker();
+            bindClickCheckFilter();
+            FilterRequestProcessing();
         });
+
+        function FilterRequestProcessing() {
+            $('.panel-body-self').find('.check-list').find('.selectpicker').change(function () {
+                var suffix = ""
+                var name = $(this).attr('name');
+                var value = $(this).attr('value')
+                $.each($(this).val(), function (index, value) {
+                    suffix += "&" + name + "=" + value;
+                })
+
+                if (value) {
+                    value = "?" + value;
+                } else if (suffix) {
+                    suffix = "?" + suffix.slice(1);
+                }
+                url = window.location.href.split("?")[0] + value + suffix
+                console.log(url)
+                location.href = url;
+
+            })
+        }
+
+        function bindClickCheckFilter() {
+            $('.filter-area').find(':checkbox').click(function () {
+                location.href = $(this).parent().attr('href');
+            })
+        }
 
         function addIssues() {
             data = $("#addIssuesForm").serialize()

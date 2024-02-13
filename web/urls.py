@@ -30,9 +30,8 @@ urlpatterns = [
 
         # 问题管理
         path("issues/", issues.issues, name="issues"),
-        path("issues_detail/<iss_id>/", issues.iss_detail, name="issDetail"),
-
-
+        path("issues/detail/<iss_id>/", issues.iss_detail, name="issDetail"),
+        path("update_issue/<iss_id>", issues.update_issue, name="updateIssue"),
 
 
         path("statistics/", manage.statistics, name="statistics"),

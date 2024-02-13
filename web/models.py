@@ -200,21 +200,38 @@ class IssuesType(models.Model):
 class Module(models.Model):
     """ 问题类型 如： 任务、问题、功能、BUG """
     PROJECT_INIT_LIST = ['任务', '功能', 'BUG']
-
+    COLOR_CHOICES = (
+        (1, "#62c9ff"), (2, "#f28033"), (3, "#ebc656"), (4, "#a2d148"),
+        (5, "#20BFA4"), (6, "#7461c2"), (7, "#20bfa3")
+    )
     title = models.CharField(verbose_name="类型名称", max_length=32)
     project = models.ForeignKey(verbose_name="项目", to="Project", on_delete=models.CASCADE)
+    color = models.PositiveSmallIntegerField(verbose_name="颜色",choices=COLOR_CHOICES,default=1)
 
     def __str__(self):
         return self.title
 
-
 class IssuesRecord(models.Model):
-    record_type_choices = ((1,"修改记录"),(2,"回复"))
+    record_type_choices = ((1, "修改记录"), (2, "回复"))
     #  ID 创建者 内容 提交类型 修改时间 父级
     record_type = models.PositiveSmallIntegerField(verbose_name="类型", choices=record_type_choices)
     content = models.TextField(verbose_name="记录内容")
-    issues = models.ForeignKey(verbose_name="问题",to="Issues",on_delete=models.CASCADE)
-    creator = models.ForeignKey(verbose_name="提交者",to="UserInfo",on_delete=models.SET_NULL, null=True, blank=True)
-    parent = models.ForeignKey(verbose_name="父级",to="self",on_delete=models.CASCADE,related_name="child", null=True, blank=True)
-    grandfather = models.ForeignKey(verbose_name="祖宗级",to="self",on_delete=models.CASCADE,related_name="grandchildren", null=True, blank=True)
-    title = models.CharField(verbose_name="类型名称", max_length=32)
+    issues = models.ForeignKey(verbose_name="问题", to="Issues", on_delete=models.CASCADE)
+    creator = models.ForeignKey(verbose_name="提交者", to="UserInfo", on_delete=models.SET_NULL, null=True, blank=True)
+    parent = models.ForeignKey(verbose_name="父级", to="self", on_delete=models.CASCADE, related_name="child",
+                               null=True, blank=True)
+    grandfather = models.ForeignKey(verbose_name="祖宗级", to="self", on_delete=models.CASCADE,
+                                    related_name="grandchildren", null=True, blank=True)
+    create_date = models.DateTimeField(verbose_name="创建日期", auto_now_add=True)
+    count = models.PositiveSmallIntegerField(verbose_name="评论计数", null=True,blank=True)
+
+
+@receiver(post_save, sender=IssuesRecord)
+@receiver(post_delete, sender=IssuesRecord)
+def update_project_usespace(sender, instance, **kwargs):
+    if instance.grandfather:
+        grandfather_id = instance.grandfather_id
+        count_new = IssuesRecord.objects.filter(grandfather_id=grandfather_id).count()
+        grandfather_pro = IssuesRecord.objects.filter(id=grandfather_id).first()
+        grandfather_pro.count = count_new
+        grandfather_pro.save()

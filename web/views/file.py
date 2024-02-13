@@ -1,6 +1,4 @@
 import json
-
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import JsonResponse
