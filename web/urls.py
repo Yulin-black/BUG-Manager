@@ -2,7 +2,8 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from SAAS import settings
 from .views import (
-    account, home, project, manage, wiki, file
+    account, home, project, manage, wiki, file,
+    pro_settting,issues
 )
 
 app_name = 'web'
@@ -26,7 +27,13 @@ urlpatterns = [
     # 项目管理
     path('manage/<pro_id>/', include(([
         path("dashboard/", manage.dashboard, name="dashboard"),
-        path("issues/", manage.issues, name="issues"),
+
+        # 问题管理
+        path("issues/", issues.issues, name="issues"),
+        path("issues/detail/<iss_id>/", issues.iss_detail, name="issDetail"),
+        path("update_issue/<iss_id>", issues.update_issue, name="updateIssue"),
+
+
         path("statistics/", manage.statistics, name="statistics"),
 
         # 文件管理
@@ -44,7 +51,13 @@ urlpatterns = [
         path('wiki/catalogWiki/', wiki.catalogWiki, name='catalogWiki'),
         path('wiki_upload/',wiki.wiki_upload_cos, name="wiki_upload"),
 
-        path("setting/", manage.setting, name="setting"),
+        # 设置
+        path("setting/", pro_settting.setting, name="setting"),
+        path('setting/del', pro_settting.deldete, name="set_deldete"),
+        path('setting/password', pro_settting.changeYourPassword, name="changeYourPassword"),
+        path('setting/personalData', pro_settting.personalData, name='personalData'),
+
+
     ],"manage"))),
 ]
 

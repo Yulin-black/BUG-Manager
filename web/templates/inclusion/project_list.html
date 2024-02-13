@@ -1,21 +1,34 @@
-<ul class="dropdown-menu">
+<ul class="dropdown-menu" style="border-radius: 5px">
     <li><i class="fa fa-list" aria-hidden="true"></i>&nbsp;&nbsp;我创建的</li>
     {% if not my %}
-        <li>空</li>
+        <li style="text-align: center"> < 空 ></li>
     {% endif %}
     {% for pro in my %}
-        <li><a href="{% url 'web:manage:dashboard' pro.id %}">{{ pro.name }}</a></li>
+        {% if request.user.project == pro %}
+            <li style="text-align: center; background-color: rgb(51,122,183)"><a
+                    href="{% url 'web:manage:dashboard' pro.id %}" style="color: #dddddd;">{{ pro.name }}</a></li>
+        {% else %}
+            <li style="text-align: center"><a href="{% url 'web:manage:dashboard' pro.id %}">{{ pro.name }}</a></li>
+        {% endif %}
     {% endfor %}
-
     <li role="separator" class="divider"></li>
     <li><i class="fa fa-handshake-o" aria-hidden="true"></i>&nbsp;&nbsp;我参加的</li>
     {% if not join %}
-        <li>空</li>
+        <li style="text-align: center"> < 空 ></li>
     {% endif %}
-      {% for pro in join %}
-        <li><a href="{% url 'web:manage:dashboard' pro.project.id %}">{{ pro.project.name }}</a></li>
+    {% for pro in join %}
+        {% if request.user.project == pro %}
+            <li style="text-align: center; background-color: rgb(51,122,183)"><a
+                    href="{% url 'web:manage:dashboard' pro.project.id %}" style="color: #dddddd;">{{ pro.project.name }}</a></li>
+        {% else %}
+            <li style="text-align: center"><a href="{% url 'web:manage:dashboard' pro.project.id %}">{{ pro.project.name }}</a></li>
+        {% endif %}
     {% endfor %}
 
     <li role="separator" class="divider"></li>
-    <li><a href="{% url 'web:project_list' %}">所有项目</a></li>
+    <li style="text-align: center"><a href="{% url 'web:project_list' %}">所有项目</a></li>
 </ul>
+
+
+
+

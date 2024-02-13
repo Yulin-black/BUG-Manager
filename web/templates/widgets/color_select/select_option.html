@@ -1,0 +1,13 @@
+<option value="{{ widget.value|stringformat:'s' }}"
+        data-content="<i class='fa fa-circle text-{{ widget.value|stringformat:'s' }}'></i>
+        {{ widget.label }}"
+    {% for name, value in widget.attrs.items %}
+        {% if value is not False %}
+            {{ name }}
+            {% if value is not True %}
+                ="{{ value|stringformat:'s' }}"
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+>
+</option>
