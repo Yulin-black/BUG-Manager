@@ -153,6 +153,14 @@ WHITE_URL_LIST = [
     '/pic_code/',
 ]
 
+################### 腾讯 COS  ##########################
+
+SecretId = ""          # 密钥id
+SecretKey = ""          # 密钥密码
+REGION = ''             # 地区
+COS_UID = ""            # UID
+
+
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 MEDIA_URL = '/media/'
