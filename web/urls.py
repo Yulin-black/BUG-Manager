@@ -32,7 +32,7 @@ urlpatterns = [
         path("issues/", issues.issues, name="issues"),
         path("issues/detail/<iss_id>/", issues.iss_detail, name="issDetail"),
         path("update_issue/<iss_id>", issues.update_issue, name="updateIssue"),
-
+        path("invite/", issues.invite_member, name='invite'),
 
         path("statistics/", manage.statistics, name="statistics"),
 
@@ -56,9 +56,8 @@ urlpatterns = [
         path('setting/del', pro_settting.deldete, name="set_deldete"),
         path('setting/password', pro_settting.changeYourPassword, name="changeYourPassword"),
         path('setting/personalData', pro_settting.personalData, name='personalData'),
-
-
     ],"manage"))),
+    path('join/<code>', issues.join_project, name='join'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
