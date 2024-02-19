@@ -271,8 +271,21 @@ def join_project(request, code):
     if models.ProjectUser.objects.filter(invitee=request.user.user,project=invite_object.project).exists():
         return render(request, "invite_join.html", {"error": "已加入此项目无需再加入"})
     # 超出限制
+    project_order = invite_object.project.createdBy.project_order
+    # 套餐过期 或者 未购买套餐 使用 免费版本
+    if (not project_order) or (project_order.end_datetime < datetime.datetime.now()):
+        price = models.PricePolicy.objects.filter(category=1).first()
+        project_number = price.project_number
+    # 其他套餐 且 未过期
+    else:
+        project_number = project_order.price_policy.project_number
+
+    if project_number <= invite_object.project.join_count:
+        return render(request, "invite_join.html", {"error": "项目成员已满，请联系项目主升级套餐"})
+
     if request.user.price_policy.project_number <= invite_object.project.join_count:
         return render(request, "invite_join.html", {"error": "项目成员已满，请联系项目主升级套餐"})
+
     # 邀请码 是否过期
     if ((timezone.now()-invite_object.creator_datetime).total_seconds() / 60) >= invite_object.period:
         return render(request, "invite_join.html", {"error": "邀请码已过期"})

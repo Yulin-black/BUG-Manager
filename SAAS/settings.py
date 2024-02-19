@@ -107,13 +107,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_TZ = True
+# 影响自动生成数据库时间字段;
+#USE_TZ = True, 创建UTC时间写入到数据库。
+#USE_TZ = False, 根据TIME_ZONE设置的时区进行创建时间并写入数据库
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

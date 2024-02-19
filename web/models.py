@@ -14,7 +14,7 @@ class UserInfo(models.Model):
     email = models.EmailField(verbose_name="邮箱", max_length=32)
     mobile_phone = models.CharField(verbose_name="手机号", max_length=32, blank=True, null=True)
 
-    project_order = models.ForeignKey(verbose_name="价格策略订单", to="Transaction", on_delete=models.CASCADE,
+    project_order = models.ForeignKey(verbose_name="价格策略订单", to="Transaction", on_delete=models.SET_NULL,
                                       blank=True, null=True)
 
     bucket = models.CharField(verbose_name="COS桶名称", max_length=64)
