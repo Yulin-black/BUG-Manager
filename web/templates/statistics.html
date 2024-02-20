@@ -1,14 +1,72 @@
-{% extends  'layout/manage.html'%}
+{% extends  'layout/manage.html' %}
+{% load static %}
 
 {% block title %}
-	<title>statistics</title>
+    <title>statistics</title>
 {% endblock %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/daterangepicker/daterangepicker.css' %}">
+    <style>
+        .set-box {
+            width: 1400px;
+            margin: auto;
+        }
+
+    </style>
+{% endblock %}
 
 {% block content %}
-    <h1>statistics</h1>
+    <div class="container-fluid" style="margin-top: 20px">
+        <div class="set-box">
+            <div class="input-group" style="width: 300px">
+                <span class="input-group-addon">日期范围</span>
+                <input id="rangePicker" type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
+    <script src="{% static 'plugin/daterangepicker/moment.min.js' %}"></script>
+    <script src="{% static 'plugin/daterangepicker/daterangepicker.js' %}"></script>
+    <script>
+        $(function () {
+            initDateRangePicker();
+        });
 
+        function initDateRangePicker() {
+            $('#rangePicker').daterangepicker({
+                maxDate: moment(),
+                "showWeekNumbers": true,
+                "showISOWeekNumbers": true,
+                ranges: {
+                    '今天': [moment(), moment()],
+                    '昨天': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    '过去 7 天': [moment().subtract(6, 'days'), moment()],
+                    '过去 30 天': [moment().subtract(29, 'days'), moment()],
+                    '本月': [moment().startOf('month'), moment().endOf('month')],
+                    '上个月': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    separator: '至',
+                    applyLabel: '确定',
+                    cancelLabel: '取消',
+                    fromLabel: '开始',
+                    toLabel: '结束',
+                    customRangeLabel: '自定义',
+                    weekLabel: 'W',
+                    daysOfWeek: ['一','二','三','四','五','六','日'],
+                    monthNames: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+                    firstDay: 1,
+                },
+                "alwaysShowCalendars": true,
+            }, function (start, end, label) {
+                // 选择时间后，此函数自动执行。
+                console.log(start.format('YYYY-MM-DD') , end.add(1,"days").format('YYYY-MM-DD'));
+            });
+        }
+    </script>
 {% endblock %}
