@@ -37,7 +37,7 @@ def project_list(request):
 @register.inclusion_tag('inclusion/manage_menu_list.html')
 def manage_menu_list(request):
     data_list = [
-        {'title': '概览','url': reverse("web:manage:dashboard", kwargs={'pro_id': request.user.project.id})},
+        {'title': '仪表板','url': reverse("web:manage:dashboard", kwargs={'pro_id': request.user.project.id})},
         {'title': '问题','url': reverse("web:manage:issues", kwargs={'pro_id': request.user.project.id})},
         {'title': '统计','url': reverse("web:manage:statistics", kwargs={'pro_id': request.user.project.id})},
         {'title': 'wiki','url': reverse("web:manage:wiki",kwargs = {'pro_id': request.user.project.id})},

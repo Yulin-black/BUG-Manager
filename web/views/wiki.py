@@ -97,7 +97,7 @@ def wiki_upload_cos(request, pro_id):
         # print(path)
         # print(request.user.user.bucket)
         url_ = upload_file(
-            bucket_name = request.user.user.bucket,
+            bucket_name = request.user.project.createdBy.bucket,
             file=file,
             path= path,
         )

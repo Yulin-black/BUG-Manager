@@ -1,5 +1,13 @@
 import json
+import random
+import datetime
+import time
+
+from django.urls import reverse
+from django.utils import timezone
+
 from utils.iterators_tools import ChoicesButton, ForeignKeySelect
+from utils.email_send import random_str
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,16 +29,14 @@ def issues(request, pro_id):
             return JsonResponse({"status": False, "error": form.errors})
 
     form = issuesForm.IssuesModelForm(request=request)
+    # 筛选 & 分页
     condition = {}
-    print(request.GET)
     for name in ['module', 'state', 'priority', 'assign', 'attention']:
         value_list = request.GET.getlist(name)
         if not value_list:
             continue
         condition[f'{name}__in'] = value_list
-    print(condition)
     issues_object_list = models.Issues.objects.filter(project_id=pro_id).filter(**condition)
-    print(len(issues_object_list))
     new_page = int(request.GET.get("page", 1))
     page = Pagination(new_page, 5, len(issues_object_list), request)
 
@@ -38,9 +44,12 @@ def issues(request, pro_id):
     project_join_user = models.ProjectUser.objects.filter(project_id=pro_id).values_list("invitee_id",
                                                                                          "invitee__username")
     project_total_user.extend(project_join_user)
+    # 邀请成员
+    invite_form = issuesForm.InviteModelForm()
 
     return render(request, "issues.html", {
         "form": form,
+        "invite_form": invite_form,
         "iss_obj": issues_object_list[page.start:page.end],
         "cont": page.page_html,
         "filter_list": [
@@ -100,7 +109,8 @@ def iss_detail(request, pro_id, iss_id):
     record_list = models.IssuesRecord.objects.filter(issues_id=iss_id, issues__project_id=pro_id).order_by(
         "create_date").all()
 
-    return render(request, "issues_detail.html", {"form": form, "record": record_list, "iss_id": iss_id})
+    return render(request, "issues_detail.html",
+                  {"form": form, "record": record_list, "iss_id": iss_id})
 
 
 @csrf_exempt
@@ -218,3 +228,74 @@ def update_issue(request, pro_id, iss_id):
         }})
 
     return JsonResponse({"status": False})
+
+
+def invite_member(request, pro_id):
+    if request.method == "POST":
+        print(request.POST)
+        form = issuesForm.InviteModelForm(request.POST)
+        if form.is_valid():
+            if request.user.user != request.user.project.createdBy:
+                form.add_error("period", "无此权限")
+                return JsonResponse({"status": False, "error": form.errors})
+
+            code = random_str(random.randint(20, 32))
+            invite_project = models.ProjectInvite.objects.filter(project_id=pro_id).first()
+            if not invite_project:
+                form.instance.project = request.user.project
+                form.instance.code = code
+                form.instance.creator = request.user.user
+                form.save()
+            else:
+                invite_project.code = code
+                invite_project.count = form.cleaned_data.get('count')
+                invite_project.period = form.cleaned_data.get('period')
+                invite_project.save()
+
+            url = f"{request.scheme}://{request.get_host()}{reverse('web:join', kwargs={'code':code})}"
+            return JsonResponse({"status": True, "data": url})
+
+        return JsonResponse({"status": False, "error": form.errors})
+
+
+def join_project(request, code):
+    """ 访问邀请码 """
+    invite_object = models.ProjectInvite.objects.filter(code=code).first()
+    # 不存在
+    if not invite_object:
+        return render(request, "invite_join.html", {"error":"邀请码不存在"})
+    # 创建者
+    if invite_object.project.createdBy == request.user.user:
+        return render(request, "invite_join.html", {"error":"创建者无需加入"})
+    # 已加入
+    if models.ProjectUser.objects.filter(invitee=request.user.user,project=invite_object.project).exists():
+        return render(request, "invite_join.html", {"error": "已加入此项目无需再加入"})
+    # 超出限制
+    project_order = invite_object.project.createdBy.project_order
+    # 套餐过期 或者 未购买套餐 使用 免费版本
+    if (not project_order) or (project_order.end_datetime < datetime.datetime.now()):
+        price = models.PricePolicy.objects.filter(category=1).first()
+        project_number = price.project_number
+    # 其他套餐 且 未过期
+    else:
+        project_number = project_order.price_policy.project_number
+
+    if project_number <= invite_object.project.join_count:
+        return render(request, "invite_join.html", {"error": "项目成员已满，请联系项目主升级套餐"})
+
+    if request.user.price_policy.project_number <= invite_object.project.join_count:
+        return render(request, "invite_join.html", {"error": "项目成员已满，请联系项目主升级套餐"})
+
+    # 邀请码 是否过期
+    if ((timezone.now()-invite_object.creator_datetime).total_seconds() / 60) >= invite_object.period:
+        return render(request, "invite_join.html", {"error": "邀请码已过期"})
+    # 超出人数限制
+    if invite_object.count:
+        if invite_object.use_count >= invite_object.count:
+            return render(request, "invite_join.html", {"error": "邀请码数量已使用完"})
+        invite_object.use_count += 1
+        invite_object.save()
+    # 加入
+    models.ProjectUser.objects.create(invitee=request.user.user, project=invite_object.project,
+                                      user=invite_object.creator)
+    return render(request, "invite_join.html",{'id':invite_object.project.id})

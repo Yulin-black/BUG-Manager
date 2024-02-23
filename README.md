@@ -43,15 +43,19 @@ DATABASES = {
     }
 }
 ```
+## 腾讯COS配置
+```python
+SecretId = ""          # 密钥id 
+SecretKey = ""          # 密钥密码
+REGION = ''             # 地区
+COS_UID = ""            # UID
+```
+
 # 运行
 ## 数据库初始化
 ```bash
 python ./manager makemigrations
 python ./manager migrate
-```
-## 创建管理员账户
-```bash
-
 ```
 ## 启动项目
 ```bash
