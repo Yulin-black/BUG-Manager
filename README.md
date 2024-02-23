@@ -44,13 +44,40 @@ DATABASES = {
 }
 ```
 ## 腾讯COS配置
+腾讯cos：https://console.cloud.tencent.com/cos
 ```python
 SecretId = ""          # 密钥id 
 SecretKey = ""          # 密钥密码
 REGION = ''             # 地区
 COS_UID = ""            # UID
 ```
+## 支付配置
+地址：https://opendocs.alipay.com/common/02kkv7?pathHash=8fd32ef6
+沙箱申请&管理页面：https://auth.alipay.com/login/ant_sso_index.htm?goto=https%3A%2F%2Fopen.alipay.com%2Fplatform%2FappDaily.htm%3Ftab%3Dinfo
+需要将 应用私钥 存放到 files目录下的ALIPAY_APP_SECRETS.txt下
+支付宝公钥 存放到 files目录下的ALIPAY_PUBLIC.txt下
+```text
+-----BEGIN PUBLIC KEY-----
+公钥内容
+-----END PUBLIC KEY-----
+```
 
+```text
+-----BEGIN RSA PRIVATE KEY-----
+私钥内容
+-----END RSA PRIVATE KEY-----
+```
+
+```python
+###############  settings 支付宝 ###########################
+ALIPAY_SECRET = ""      # 应用 私钥.txt
+ALIPAY_PUBLIC = ""      # 支付宝 公钥.txt
+ALIPAY_APP_ID = ""      # 应用 ID
+ALIPAY_GATEWAY = ""     # 应用 网关
+RETURN_URL = ""         # 返回 get 的url
+NOTIFI_URL = ""         # 返回 post 的url  需要 公网 ip 或者 域名
+
+```
 # 运行
 ## 数据库初始化
 ```bash
