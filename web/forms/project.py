@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from web.forms.widgets import ColorRadioSelect
-from web.forms.account import AddCssCodeFrom
+from web.forms.BOOT_STYLE import AddCssCodeFrom
 from web import models
 
 class ProjectModelForm(AddCssCodeFrom, forms.ModelForm):

@@ -1,12 +1,50 @@
-{% extends  'layout/manage.html'%}
+{% extends 'layout/manage.html' %}
 
 {% block title %}
-	<title>settings</title>
+    <title>项目配置</title>
+{% endblock %}
+{% block css %}
+    <style>
+    {% block css-li %}{% endblock %}
+        .set-box {
+            width: 1400px;
+            margin: auto;
+        }
+    </style>
 {% endblock %}
 
-
 {% block content %}
-    <h1>settings</h1>
+    <div class="set-box">
+        <div class="col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>个人中心</h4></div>
+                <div class="list-group">
+                    <a class="list-group-item choose1"
+                       href="{% url 'web:manage:personalData' request.user.project.id %}"
+                    >我的资料</a>
+                    <a class="list-group-item choose2"
+                       href="{% url 'web:manage:changeYourPassword' request.user.project.id %}"
+                    >修改密码</a>
+                    <a class="list-group-item choose3"
+                       href="{% url 'web:manage:set_deldete' request.user.project.id %}"
+                    >删除项目</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9">
+            {% block set_content %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-address-card-o" aria-hidden="true"></i>
+                        Personal Center
+                    </div>
+                    <div class="panel-body">
+                        <h1 style="text-align: center">系统设置</h1>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}

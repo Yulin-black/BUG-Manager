@@ -43,11 +43,12 @@ class AuthMiddleware(MiddlewareMixin):
             if not user_object.project_order :
                 # 不存在 使用免费策略
                 request.user.price_policy = models.PricePolicy.objects.filter(category=1, title="个人免费版").first()
-            elif user_object.project_order.end_datetime > datetime.datetime.now():
+            elif user_object.project_order.end_datetime < datetime.datetime.now():
                 # 存在 但是 已过期
                 request.user.price_policy = models.PricePolicy.objects.filter(category=1, title="个人免费版").first()
                 # 将过期策略清空
                 user_object.project_order = None
+                user_object.save()
             else:
                 # 存在 且 未过期 使用未过期的策略
                 request.user.price_policy = user_object.project_order.price_policy

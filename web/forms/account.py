@@ -1,38 +1,10 @@
 from django import forms
 # 这种类型的异常可以用于验证表单、模型或其他数据。
 from django.core.exceptions import ValidationError
-from django_redis import get_redis_connection
 from web import models
 from SAAS import settings
 from django.contrib.auth.hashers import make_password, check_password
-
-class AddCssCodeFrom:
-
-    noAddCss_label = []
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for name, field in self.fields.items():
-            if name in self.noAddCss_label:
-                continue
-            field.widget.attrs['class'] = "form-control"
-            field.widget.attrs['placeholder'] = f"请输入{field.label}"
-
-    def clean_code(self):
-        # 验证 验证码是否正确
-        conn = get_redis_connection()
-        code = self.cleaned_data['code']
-        # print(self.cleaned_data)
-        print(self.data.get)
-        email = self.data.get('email')
-        value = conn.get(email)
-        if not value:
-            raise ValidationError("验证码未发送或者已失效！")
-        email_code = value.decode('utf-8')
-        if email_code != code:
-            raise ValidationError("验证码错误！")
-        # 验证成功后从redis中删除验证码
-        conn.delete(email)
-        return code
+from web.forms.BOOT_STYLE import AddCssCodeFrom
 
 class RegisterModelForm(AddCssCodeFrom, forms.ModelForm):
     """ 用户注册 """

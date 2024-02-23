@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from tools.project_tools import init_issues_module
 from web.forms import project
 from web import models
 
@@ -8,17 +9,22 @@ def project_list(request):
     """ 项目列表 """
     if request.method == "POST":
         print(request.POST)
+        # 创建项目
         form = project.ProjectModelForm(data= request.POST, request=request)
         if form.is_valid():
             # 额外添加字段数据
             form.instance.createdBy = request.user.user
-            form.save()
+            instance = form.save()
+            # 初始化 项目 问题类型
+            init_issues_module(instance, models.IssuesType)
+            # 初始化 项目 模块
+            init_issues_module(instance, models.Module)
+
             return JsonResponse({"status": True, "data": "/login/"})
         else:
             return JsonResponse({"status": False, "error": form.errors})
     else:
         # GET
-
         project_dict = {"star":[], "my":[], "join":[]}
         my_project_list = models.Project.objects.filter(createdBy=request.user.user).all()
         join_project_list = models.ProjectUser.objects.filter(invitee=request.user.user).all()

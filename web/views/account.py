@@ -55,7 +55,7 @@ def send_email_info(request):
 
 def login_email(request):
     if request.method == "POST":
-        print("ajax获取到了邮箱:", request.POST.get('email'),
+        print("login_email-ajax获取到了邮箱:", request.POST.get('email'),
               "验证码：", request.POST.get('code'))
         form = account.EmailLoginForm(data=request.POST)
         if form.is_valid():

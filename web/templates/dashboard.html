@@ -1,14 +1,315 @@
-{% extends  'layout/manage.html'%}
+{% extends  'layout/manage.html' %}
+{% load static %}
+{% load project %}
 
 {% block title %}
-	<title>仪表板</title>
+    <title>仪表板</title>
+{% endblock %}
+
+{% block css %}
+    <style>
+        .list-group-self {
+            margin-bottom: 0;
+        }
+
+        .panel-body-self {
+            padding: 5px 15px 15px 15px;
+        }
+
+        .list-group-item-self {
+            border-bottom: 1px solid #ddd;
+            display: block;
+            padding: 10px 15px;
+        }
+
+        .status-count {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status-count .count {
+            font-size: 25px;
+        }
+
+        .status-count a {
+            text-decoration: none;
+        }
+
+        .user-item .title {
+            margin-bottom: 20px;
+            width: 120px;
+        }
+
+        .user-item .avatar, .top-10 .avatar {
+            float: left;
+            margin-right: 10px;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #304659;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+        }
+
+        .user-item .text {
+            line-height: 30px;
+        }
+
+        .canyu {
+            width: 100%;
+            height: 157px;
+            overflow: hidden; /* 设置溢出时显示滚动条 */
+        }
+
+        .dynamic {
+            width: 100%;
+            height: 342px;
+            overflow: hidden; /* 设置溢出时显示滚动条 */
+        }
+
+        .dynamic:hover, .canyu:hover {
+            overflow: auto; /* 滑动时显示滚动条 */
+        }
+
+        /* 设置滚动条的样式（WebKit内核浏览器） */
+        .dynamic::-webkit-scrollbar, .canyu::-webkit-scrollbar {
+            width: 5px; /* 滚动条宽度 */
+        }
+
+        .dynamic::-webkit-scrollbar-thumb, .canyu::-webkit-scrollbar-thumb {
+            background-color: #888; /* 滚动条滑块颜色 */
+            border-radius: 5px; /* 滚动条滑块圆角 */
+        }
+
+        .dynamic::-webkit-scrollbar-track, .canyu::-webkit-scrollbar-track {
+            background-color: #eee; /* 滚动条轨道颜色 */
+            border-radius: 5px; /* 滚动条轨道圆角 */
+        }
+
+        .top-10 .avatar {
+            margin-right: 0;
+        }
+
+        .top-10 td {
+            padding: 5px 10px;
+        }
+
+        .top-10 .table > tbody > tr > td {
+            border-top: 0;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
 {% endblock %}
 
 
 {% block content %}
-    <h1>挡泥板</h1>
+    <div class="container-fluid" style="width: 1400px;margin: auto;">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                        新增问题趋势
+                    </div>
+                    <div class="panel-body">
+                        <div id="container" style="width: 100%;min-height: 250px"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-quora" aria-hidden="true"></i>
+                                问题
+                            </div>
+                            <div class="panel-body">
+                                {% for key,value in status_dict.items %}
+                                    <div class="col-sm-4 status-count">
+                                        <a href="{% url 'web:manage:issues' request.user.project.id %}?state={{ key }}">
+                                            <div class="count">{{ value.count }}</div>
+                                            <div>{{ value.title }}</div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                                项目成员
+                            </div>
+                            <div class="panel-body user-item">
+                                <div class="col-sm-12" style="margin-bottom: 20px;">创建者</div>
+                                <div class="clearfix">
+                                    <div class="col-sm-4" style="margin-bottom: 20px;">
+                                        <div class="avatar">{{ request.user.project.createdBy.username.0|upper }}</div>
+                                        <div class="text">{{ request.user.project.createdBy.username }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 title">参与者</div>
+                                <div class="canyu">
+                                    {% for foo in project_join_user %}
+                                        <div class="col-sm-4 title">
+                                            <div class="avatar">{{ foo.1.0|upper }}</div>
+                                            <div class="text">{{ foo.1 }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-id-card" aria-hidden="true"></i>
+                        详细
+                    </div>
+                    <div class="panel-body-self">
+                        <ul class="list-group-self list-group">
+                            <li class="list-group-item-self">
+                                项目名称：{{ request.user.project.name }}
+                            </li>
+                            <li class="list-group-item-self">
+                                项目描述：{{ request.user.project.desc }}
+                            </li>
+                            <li class="list-group-item-self">
+                                创建时间：{{ request.user.project.create_datetime }}
+                            </li>
+                            <li class="list-group-item-self">
+                                {% project_capacity request as pro_cap %}
+                                项目空间：{{ pro_cap.capacity }}
+                            </li>
+                            <li class="list-group-item-self">
+                                项目套餐：{{ request.user.price_policy.title }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-telegram" aria-hidden="true"></i>
+                        动态
+                    </div>
+                    <div class="panel-body top-10">
+                        <div class="dynamic">
+                            <table class="table">
+                                <tbody>
+                                {% for foo in top %}
+                                    <tr>
+                                        <td style="width: 46px">
+                                            <div class="avatar">{{ foo.creator.username.0|upper }}</div>
+                                        </td>
+                                        <td>
+                                            <div>{{ foo.creator.username }}</div>
+                                            <div>指派<a
+                                                    href="{% url 'web:manage:issDetail' request.user.project.id foo.id %}">
+                                                {% if foo.id < 10 %}
+                                                    #00{{ foo.id }}
+                                                {% elif foo.id < 100 %}
+                                                    #0{{ foo.id }}
+                                                {% else %}
+                                                    #{{ foo.id }}
+                                                {% endif %}
+                                            </a>
+                                                给{{ foo.assign.username }}
+                                            </div>
+                                        </td>
+                                        <td style="width: 156px">{{ foo.create_datetime }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
+    <script src="{% static 'plugin/Highcharts/highcharts.js' %}"></script>
+    <script>
+        var zhaoLing_URL = "{% url 'web:manage:zhaoLing' request.user.project.id %}"
+        Highcharts.setOptions({
+            global:{
+                useUTC: false
+            }
+        });
+        $(function () {
+            initCharts();
+        })
+
+        function initCharts() {
+            var config = {
+                title: {
+                    text: null      // 不显示标题
+                },
+                length: {
+                    enabled: false  // 关闭图例提示
+                },
+                credits: {
+                    enabled: false  // 关闭版权信息
+                },
+                yAxis: {
+                    title: {
+                        text: "问题数量"
+                    }
+                },
+                xAxis: {
+                    text: null,
+                    type: 'datetime',       // 时间格式
+                    tickInterval: 60 * 60 * 24 * 1000,      // 间隔时间
+                    labels: {               // 显示的日期格式
+                        formatter: function () {
+                            return Highcharts.dateFormat("%m-%d", this.value);
+                        },
+                        rotation: -30       // 偏移  角度
+                    }
+                },
+                tooltip: {                // 光标移动到点上显示的值
+                    headerFormat: "<b>{point.key}</b></br>",
+                    pointFormat: "<span style='color: {series.color}'>\u25CF</span>数量：{point.y}",
+                    xDateFormat: '%Y-%m-%d',
+                },
+                plotOptions: {
+                    area: {
+                        stacking: 'normal',
+                        lineColor: '#666666',
+                        lineWidth: 1,
+                        marker: {
+                            lineWidth: 1,
+                            lineColor: '#666666'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: "新增问题",
+                        data: []
+                    }]
+            };
+            $.ajax({
+                url: zhaoLing_URL,
+                type: "GET",
+                dataType: "JSON",
+                success: function (res) {
+                    config.series[0].data = res.data;
+                    var chart = Highcharts.chart('container', config);
+                }
+            })
+
+        }
+
+
+    </script>
 
 {% endblock %}

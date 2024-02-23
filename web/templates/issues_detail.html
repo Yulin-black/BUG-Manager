@@ -1,0 +1,607 @@
+{% extends 'layout/manage.html' %}
+{% load static %}
+
+{% block title %}
+    <title>问题管理</title>
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/bootstrap-datepicker/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/bootstrap-select.min.css' %}">
+    <style>
+        .set-box {
+            width: 1800px;
+            margin: auto;
+        }
+
+        .comment-area .left-avatar {
+            float: left;
+            margin-right: 10px;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #1d5e9a;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+        }
+
+        .comment-area .right-info {
+            padding-left: 35px;
+            margin-bottom: 10px;
+        }
+
+        .comment-area .item {
+            width: 700px;
+        }
+
+        .child .item {
+            width: 655px;
+        }
+
+        .comment-area .right-info .desc .msg {
+            display: inline-block;
+            padding-right: 20px;
+            color: #8c8c8c;
+        }
+
+        .comment-area .child {
+            padding-left: 45px;
+        }
+
+        .comment-area .comment-list {
+            width: 100%;
+            height: 623px;
+            overflow: hidden; /* 设置溢出时显示滚动条 */
+        }
+
+        .comment-area .comment-list:hover {
+            overflow: auto; /* 滑动时显示滚动条 */
+        }
+
+        /* 设置滚动条的样式（WebKit内核浏览器） */
+        .comment-area .comment-list::-webkit-scrollbar {
+            width: 5px; /* 滚动条宽度 */
+        }
+
+        .comment-area .comment-list::-webkit-scrollbar-thumb {
+            background-color: #888; /* 滚动条滑块颜色 */
+            border-radius: 5px; /* 滚动条滑块圆角 */
+        }
+
+        .comment-area .comment-list::-webkit-scrollbar-track {
+            background-color: #eee; /* 滚动条轨道颜色 */
+            border-radius: 5px; /* 滚动条轨道圆角 */
+        }
+
+        .comment-area a {
+            text-decoration: none;
+        }
+
+
+        .comment-area .reply {
+            margin-right: 25px;
+        }
+
+        .comment-area .comment-list pre {
+            white-space: pre-wrap; /* 保留空白字符，自动换行 */
+            word-wrap: break-word; /* 在单词内换行 */
+        }
+
+        .panel-body_1 {
+            padding: 10px 0 10px 10px;
+        }
+
+        #record-cont {
+            position: relative;
+            margin-right: 10px;
+        }
+
+        #record-cont textarea {
+            margin-bottom: 10px;
+        }
+
+        #record-cont .tag-box {
+            min-width: auto; /* 设置最小宽度为自动，以允许根据内容自适应变宽 */
+            height: 32px;
+            line-height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            background-color: #dddddd;
+            padding-left: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 80px;
+        }
+
+        #record-cont .tag-box i {
+            line-height: 32px;
+            margin: 0 10px 0 10px;
+        }
+
+        #record-cont .error-msg {
+            color: red;
+            position: absolute;
+            bottom: 20px;
+            right: 80px;
+        }
+
+        .pre-css-o {
+            background-color: beige;
+            color: red;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="set-box">
+        <div class="col-sm-7">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        更新面板</h5>
+                </div>
+                <div class="panel-body">
+                    <form id="addIssuesForm" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.issues_type.id_for_label }}" class="col-md-2 control-label">
+                                {{ form.issues_type.label }}
+                            </label>
+                            <div class="col-md-10">
+                                <div>
+                                    {{ form.issues_type }}
+                                </div>
+                                <div class="error-msg"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.subject.id_for_label }}" class="col-md-2 control-label">
+                                {{ form.subject.label }}
+                            </label>
+                            <div class="col-md-10">
+                                <div>
+                                    {{ form.subject }}
+                                </div>
+                                <div class="error-msg"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.module.id_for_label }}" class="col-md-2 control-label">
+                                {{ form.module.label }}
+                            </label>
+                            <div class="col-md-10">
+                                {{ form.module }}
+                                <div class="error-msg"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.desc.id_for_label }}" class="col-md-2 control-label">
+                                {{ form.desc.label }}
+                            </label>
+                            <div class="col-md-10">
+                                <div id="editor">
+                                    {{ form.desc }}
+                                </div>
+                                <div class="error-msg"></div>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix">
+                            <div class="col-md-6 pd-0">
+                                <div class="form-group">
+                                    <label for="{{ form.state.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.state.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.state }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.parent.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.parent.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.parent }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.priority.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.priority.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.priority }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.assign.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.assign.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.assign }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 pd-0">
+                                <div class="form-group">
+                                    <label for="{{ form.attention.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.attention.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.attention }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.start_date.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.start_date.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="sizing-addon2">
+                                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            </span>
+                                            {{ form.start_date }}
+                                        </div>
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.end_date.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.end_date.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="sizing-addon2">
+                                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            </span>
+                                            {{ form.end_date }}
+                                        </div>
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.mode.id_for_label }}" class="col-md-3 control-label">
+                                        {{ form.mode.label }}
+                                    </label>
+                                    <div class="col-md-8">
+                                        {{ form.mode }}
+                                        <div class="error-msg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5><i class="fa fa-search" aria-hidden="true"></i>
+                        操作记录</h5>
+                </div>
+                <div class="panel-body_1 comment-area">
+                    <div class="comment-list">
+                        {% for foo in record %}
+                            {% if not foo.grandfather %}
+                                <div class="item clearfix" id="record_{{ foo.id }}">
+                                    <div class="left-avatar">
+                                        {{ foo.creator.username|slice:":1" }}
+                                    </div>
+                                    <div class="right-info">
+                                        <pre id="pre_{{ foo.id }}">{{ foo.content }}</pre>
+                                        <div class="desc">
+                                            <div class="msg">
+                                                <i class="fa fa-bullhorn" aria-invalid="true"></i>
+                                                <span class="type">{{ foo.get_record_type_display }}</span>
+                                            </div>
+                                            <div class="msg">
+                                                <i class="fa fa-user-o" aria-invalid="true"></i>
+                                                <span class="user">{{ foo.creator.username }}</span>
+                                            </div>
+                                            <div class="msg">
+                                                <i class="fa fa-clock-o" aria-invalid="true"></i>
+                                                <span class="date">{{ foo.create_date }}</span>
+                                            </div>
+                                            <a onclick="setTextarea('{{ foo.id }}','{{ foo.id }}','{{ foo.creator.username }}')"
+                                               class="reply">
+                                                <i class="fa fa-reply" aria-hidden="true"></i>
+                                                回复
+                                            </a>
+                                            {% if foo.count != None and foo.count != 0 %}
+                                                <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                                                <div class="testreply msg"
+                                                     onclick="showTheReply('record_{{ foo.id }}',{{ foo.count }})">
+                                                    显示{{ foo.count }}条回复
+                                                </div>
+                                            {% else %}
+                                                <div class="testreply msg"
+                                                     onclick="showTheReply('record_{{ foo.id }}',{{ foo.count }})">
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="child hide">
+                                        {% for child in record %}
+                                            {% if child.grandfather.id == foo.id %}
+                                                <div class="item clearfix" id="record_{{ child.id }}">
+                                                    <div class="left-avatar">{{ child.creator.username|slice:":1" }}</div>
+                                                    <div class="right-info">
+                                                        <pre id="pre_{{ child.id }}">{{ child.content }}</pre>
+                                                        <div class="desc">
+                                                            <div class="msg">
+                                                                <i class="fa fa-bullhorn" aria-invalid="true"></i>
+                                                                <span class="type">{{ child.get_record_type_display }}->{{ child.parent.creator.username }}</span>
+                                                            </div>
+                                                            <div class="msg">
+                                                                <i class="fa fa-user-o" aria-invalid="true"></i>
+                                                                <span class="user">{{ child.creator.username }}</span>
+                                                            </div>
+                                                            <div class="msg">
+                                                                <i class="fa fa-clock-o" aria-invalid="true"></i>
+                                                                <span class="date">{{ child.create_date }}</span>
+                                                            </div>
+                                                            <a onclick="setTextarea('{{ child.id }}','{{ child.grandfather_id }}','{{ child.creator.username }}')"
+                                                               class="reply">
+                                                                <i class="fa fa-reply" aria-hidden="true"></i>
+                                                                回复
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <hr>
+
+                    <form id="record-cont">
+                        {% csrf_token %}
+                        <textarea class="form-control" rows="4" placeholder="发送评论..." name="content"></textarea>
+                        <div class="error-msg"></div>
+                        <input type='button' value='PUSH' class='btn btn-primary btn-sm' onclick='pushRecord()'/>
+                        <div class="tag-box hide">
+                            回复：<span class="text"></span>
+                            <i class="fa fa-times-circle" onclick="clearTag()" aria-hidden="true"></i>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hide" id="recordTemplate">
+        <div class="item clearfix">
+            <div class="left-avatar"></div>
+            <div class="right-info">
+                <pre></pre>
+                <div class="desc">
+                    <div class="msg">
+                        <i class="fa fa-bullhorn" aria-invalid="true"></i>
+                        <span class="type"></span>
+                    </div>
+                    <div class="msg">
+                        <i class="fa fa-user-o" aria-invalid="true"></i>
+                        <span class="user"></span>
+                    </div>
+                    <div class="msg">
+                        <i class="fa fa-clock-o" aria-invalid="true"></i>
+                        <span class="date"></span>
+                    </div>
+                    <a class="reply">
+                        <i class="fa fa-reply" aria-hidden="true"></i>
+                        回复
+                    </a>
+                    <div class="testreply msg"
+                         onclick="showTheReply('record_{{ foo.id }}',{{ foo.count }})">
+                    </div>
+
+                </div>
+            </div>
+            <div class="child hide">
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block js %}
+    <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
+    <script src="{% static 'plugin/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'plugin/bootstrap-datepicker/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+    <script src="{% static 'plugin/bootstrap-select/bootstrap-select.min.js' %}"></script>
+    <script src="{% static 'plugin/bootstrap-select/defaults-zh_CN.min.js' %}"></script>
+
+    <script>
+        var upload_url = "{% url 'web:manage:wiki_upload' request.user.project.id %}";
+        var GRANDFATHRT_ID = null;
+        var PARENT_ID = null;
+        var PUSHRECORD_URL = "{% url 'web:manage:issDetail' request.user.project.id iss_id %}";
+        var UPDATEiSSUES_URL = "{% url 'web:manage:updateIssue' request.user.project.id iss_id %}";
+
+        $(function () {
+            initDatePicker();
+            initEdtorMd();
+            bindChangeIssues();
+        });
+
+        function bindChangeIssues() {
+            $('#addIssuesForm').find('.form-control').change(function () {
+                var postDict = {name: $(this).attr("name"), value: $(this).val()}
+                console.log(postDict);
+                ChangeIssues(postDict);
+            })
+        }
+
+        function updateEdtorMd() {
+            var postDict = {name: "desc", value: EDITOR.getValue()}
+            console.log(postDict);
+            ChangeIssues(postDict);
+        }
+
+        function ChangeIssues(postDict) {
+            $.ajax({
+                url: UPDATEiSSUES_URL,
+                type: "POST",
+                header: {
+                    "Content-Type": "application/json;charset=utf-8"
+                },
+                data: JSON.stringify(postDict),
+                //data:JSON.stringify({"name": "attention", "value": ["111", "2130"]}),
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    if (res.status) {
+                        var item = $('#recordTemplate').find('.item').clone();
+                        item.attr("id", "record_" + res.data.id);
+                        item.find(".left-avatar").html(res.data.user[0].toUpperCase());
+                        item.find('pre').attr("id", "pre_" + res.data.id).html(res.data.content);
+                        item.find('.user').html(res.data.user);
+                        item.find('.type').html(res.data.type);
+                        item.find('.date').html(res.data.date);
+                        item.find('.reply').attr('onclick', "setTextarea('" + res.data.id + "','" + res.data.id + "','" + res.data.user + "')");
+                        $(".comment-area .comment-list").append(item);
+                        window.location.hash = "record_" + res.data.id;
+                    } else {
+                        $("#id_" + res.id).parent().next('.error-msg').text(res.error);
+                        setTimeout(function () {
+                            $("#id_" + res.id).parent().next('.error-msg').text("");
+                        }, 1500);
+                    }
+                }
+            });
+        }
+
+        function pushRecord() {
+            let formData = $("#record-cont").serialize();
+            if (formData[formData.length - 1] === "=") {
+                const err = $("#record-cont .error-msg");
+                err.text("*评论内容不能为空");
+                setTimeout(function () {
+                    err.text("");
+                }, 3000);
+                return;
+            }
+            formData += "&parent_id=" + PARENT_ID + "&grandf_id=" + GRANDFATHRT_ID;
+            console.log(formData)
+            $.ajax({
+                url: PUSHRECORD_URL,
+                type: 'POST',
+                data: formData, // 发送的数据
+                dataType: 'json', // 预期的数据类型
+                success: function (res) {
+                    console.log(res)
+                    if (res.status) {
+                        $('#record-cont')[0].reset()
+                        var item = $('#recordTemplate').find('.item').clone();
+                        item.attr("id", "record_" + res.data.id);
+                        item.find(".left-avatar").html(res.data.user[0].toUpperCase());
+                        item.find('pre').attr("id", "pre_" + res.data.id).html(res.data.content);
+                        item.find('.user').html(res.data.user);
+                        item.find('.type').html(res.data.type);
+                        item.find('.date').html(res.data.date);
+
+                        if (GRANDFATHRT_ID === null) {
+                            item.find('.reply').attr('onclick', "setTextarea('" + res.data.id + "','" + res.data.id + "','" + res.data.user + "')");
+                            $(".comment-area .comment-list").append(item);
+                        } else {
+                            item.find('.child').remove();
+                            var grandf = $("#record_" + res.data.grandf_id)
+                            grandf.find('.fa-commenting-o').remove();
+                            item.find('.testreply').remove();
+                            item.find('.reply').attr('onclick', "setTextarea('" + res.data.id + "','" + res.data.grandf_id + "','" + res.data.user + "')")
+                            item.find('.type').text("回复->" + res.data.parent_name);
+                            $("#record_" + res.data.grandf_id + " .child").append(item);
+                            $('#record_' + res.data.grandf_id + " .testreply")
+                                .before('<i class="fa fa-commenting-o" aria-hidden="true"></i>&nbsp;')
+                                .attr('onclick', "showTheReply('record_" + res.data.grandf_id + "', " + (parseInt(res.data.count) + 1) + ")")
+                                .text("隐藏回复");
+                            grandf.find(".child").removeClass("hide");
+                        }
+                    }
+                },
+            });
+
+        }
+
+        function setTextarea(parent_id, grandf_id, username) {
+            console.log(parent_id, grandf_id, username);
+            $('.comment-area').find('pre').removeClass();
+            var tag = $("#record-cont .tag-box")
+            tag.find(".text").text(username);
+            $("#record-cont .form-control").attr("placeholder", "回复：" + username + "...")
+            tag.removeClass("hide");
+            $("#pre_" + parent_id).addClass("pre-css-o");
+            GRANDFATHRT_ID = grandf_id;
+            PARENT_ID = parent_id;
+        }
+
+        function clearTag() {
+            $("#record-cont .tag-box").addClass("hide");
+            $("#record-cont .form-control").attr("placeholder", "发送评论...")
+            $('.comment-area').find("pre").removeClass();
+            GRANDFATHRT_ID = null;
+            PARENT_ID = null;
+        }
+
+        function showTheReply(record_id, count) {
+            var newrecord = $("#" + record_id);
+            // 判断是否 存在 hide 类
+            if (newrecord.find(".child").hasClass("hide")) {
+                newrecord.find(".child").removeClass("hide");
+                newrecord.find(".testreply").text('隐藏回复');
+            } else {
+                newrecord.find(".child").addClass("hide");
+                newrecord.find(".testreply").text('显示' + count + '条回复')
+            }
+        }
+
+        function initDatePicker() {
+            $("#id_start_date, #id_end_date").datepicker({
+                format: "yyyy-mm-dd",
+                startDate: "0",
+                language: "zh-CN",
+                autoclose: true
+            });
+        }
+
+        function initEdtorMd() {
+            EDITOR = editormd('editor', {
+                placeholder: "请输入内容",
+                height: 400,
+                path: "{% static 'plugin/editor-md/lib/' %}",
+                // 允许本地上传图片
+                imageUpload: true,
+                // 上传的文件格式
+                imageFormats: ["jpg", "jpeg", "png", "gif"],
+                // 上传的地址
+                imageUploadURL: upload_url,
+                onload: function () {
+                    this.previewing();
+                },
+                toolbarAutoFixed: false,
+                toolbarIcons: function () {
+                    // Or return editormd.toolbarModes[name]; // full, simple, mini
+                    // Using "||" set icons align right.
+                    return ["undo", "redo", "|", "bold", "hr", "|", "watch", "fullscreen", "image", "preview", "||", "save"]
+                },
+                toolbarCustomIcons: {
+                    save: "<input type='button' value='保 存' class='btn btn-success btn-sm' onclick='updateEdtorMd()'/>"
+                },
+            });
+        }
+    </script>
+
+{% endblock %}

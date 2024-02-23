@@ -13,71 +13,78 @@
 
     {% block css %}{% endblock %}
     <style>
-        *{
+        * {
             padding: 0;
             margin: 0;
         }
-        .error-msg{
+        .error-msg {
             color: red;
             position: absolute;
             margin-left: 10px;
             font-size: 12px;
         }
-        .container{
+        .editormd-fullscreen{
+            z-index: 1001;
+        }
+        .container {
             width: 1400px;
         }
-
-
+        .dropdown-menu>li>a:hover{
+            background-color: rgb(51,122,183) !important;
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-default">
-  <div class="container">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand" href="{% url 'web:project_list' %}">Brand</a>
-    </div>
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'web:project_list' %}">Tracer平台</a>
+        </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-              项目 {% if request.user.project %}
-              	({{ request.user.project.name }})
-              {% endif %}  <span class="caret"></span></a>
-            {% project_list request %}
-        </li>
-      {% if request.user.project %}
-          {% manage_menu_list request %}
-      {% endif %}
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        项目 {% if request.user.project %}
+                        ({{ request.user.project.name }})
+                    {% endif %}  <span class="caret"></span></a>
+                    {% project_list request %}
+                </li>
+                {% if request.user.project %}
+                    {% manage_menu_list request %}
+                {% endif %}
 
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-           <li class="dropdown  active">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                  {{ request.user.user.username }} <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="{% url 'web:index' %}">官网</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">占位</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="{% url 'web:logout' %}">退出</a></li>
-              </ul>
-            </li>
-      </ul>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown  active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        {{ request.user.user.username }} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'web:index' %}">官网</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'web:price' %}">购买套餐</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'web:logout' %}">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
 
 {% block content %}{% endblock %}
 
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-<script src="{% static 'plugin/bootstrap/js/bootstrap.min.js' %}"></script>
-
+{#<script src="{% static 'plugin/bootstrap/js/bootstrap.min.js' %}"></script>#}
+<script src="{% static 'plugin/bootstrap/js/bootstrap.js' %}"></script>
 {% block js %}
+
 
 {% endblock %}
 </body>

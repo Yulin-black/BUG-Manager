@@ -107,13 +107,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_TZ = True
+# 影响自动生成数据库时间字段;
+#USE_TZ = True, 创建UTC时间写入到数据库。
+#USE_TZ = False, 根据TIME_ZONE设置的时区进行创建时间并写入数据库
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -151,11 +156,29 @@ WHITE_URL_LIST = [
     '/login/',
     '/logout/',
     '/pic_code/',
+    '/price',
 ]
+
+################### 腾讯 COS  ##########################
+
+SecretId = ""          # 密钥id
+SecretKey = ""          # 密钥密码
+REGION = ''             # 地区
+COS_UID = ""            # UID
+
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 MEDIA_URL = '/media/'
+
+
+############### 支付宝 ###########################
+ALIPAY_SECRET = ""      # 应用 私钥.txt
+ALIPAY_PUBLIC = ""      # 支付宝 公钥.txt
+ALIPAY_APP_ID = ""      # 应用 ID
+ALIPAY_GATEWAY = ""     # 应用 网关
+RETURN_URL = ""         # 返回 get 的url
+NOTIFI_URL = ""         # 返回 post 的url  需要 公网 ip 或者 域名
 
 
 try:

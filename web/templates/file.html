@@ -420,6 +420,7 @@
                                 var $tr = $('#progressTemplate').find('tr').clone();
                                 $tr.find(".name").text(file.name)
                                 upload.find('table').append($tr)
+                                console.log(FILE_PATH + file.key)
                                 cos.putObject({
                                     {% bucket_info request as bucket %}
                                     Bucket: "{{ bucket.bucket }}",
@@ -478,7 +479,7 @@
                                             }
                                         });
                                     } else {
-                                        tr.find('.progress-error').text("上传失败！");
+                                        $tr.find('.progress-error').text("上传失败！");
                                     }
                                 });
                             });
@@ -527,9 +528,13 @@
                         // 刷新当前页面
                         location.reload();
                     } else { // 如果返回的状态为假（失败）
+                        $('#errModal').modal('show').find("p").text(
+                                res.error
+                            );
+                        /*
                         $.each(res.error, function (key, value) { // 遍历错误信息
                             $('#id_' + key).next().text("*" + value[0]); // 在对应的输入框下方显示错误信息
-                        });
+                        });*/
                     }
                 }
             })
