@@ -11,6 +11,11 @@ app_name = 'web'
 urlpatterns = [
     path('', home.index, name='index'),
     path('error_404', home.error_404, name='error_404'),
+    path('price', home.price, name="price"),
+    path('payment/<policy_id>', home.payment, name="payment"),
+    path('pay',home.pay, name="pay"),
+    path('pay/notify/', home.pay_notify, name="notify"),
+
     # 登录-注册
     path('send_email_info/', account.send_email_info, name='send_email'),
     path("register/", account.register, name='register'),
@@ -35,6 +40,7 @@ urlpatterns = [
         path("invite/", issues.invite_member, name='invite'),
 
         path("statistics/", statistics.statistics, name="statistics"),
+        path("applicationData/", statistics.ApplicationData, name='ApplicationData'),
 
         # 文件管理
         path("file/", file.file, name="file"),

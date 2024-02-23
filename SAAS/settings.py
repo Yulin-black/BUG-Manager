@@ -156,6 +156,7 @@ WHITE_URL_LIST = [
     '/login/',
     '/logout/',
     '/pic_code/',
+    '/price',
 ]
 
 ################### 腾讯 COS  ##########################
@@ -169,6 +170,15 @@ COS_UID = ""            # UID
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 MEDIA_URL = '/media/'
+
+
+############### 支付宝 ###########################
+ALIPAY_SECRET = ""      # 应用 私钥.txt
+ALIPAY_PUBLIC = ""      # 支付宝 公钥.txt
+ALIPAY_APP_ID = ""      # 应用 ID
+ALIPAY_GATEWAY = ""     # 应用 网关
+RETURN_URL = ""         # 返回 get 的url
+NOTIFI_URL = ""         # 返回 post 的url  需要 公网 ip 或者 域名
 
 
 try:

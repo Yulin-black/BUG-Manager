@@ -60,8 +60,8 @@ class Transaction(models.Model):
     count = models.IntegerField(verbose_name="数量（年）", help_text="0为无期限")
     price = models.IntegerField(verbose_name="实际支付价格", default=0)
 
-    start_datetime = models.DateTimeField(verbose_name="开始时间", auto_now_add=True)
-    end_datetime = models.DateTimeField(verbose_name="结束时间")
+    start_datetime = models.DateTimeField(verbose_name="开始时间", null=True, blank=True)
+    end_datetime = models.DateTimeField(verbose_name="结束时间", null=True, blank=True)
     create_datetime = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
 

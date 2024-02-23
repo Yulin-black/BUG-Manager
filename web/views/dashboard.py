@@ -44,11 +44,11 @@ def zhaoLing(request, pro_id):
     # 获取当前日期
     current_date = datetime.now().date()
     for i in range(30, 0, -1):
-        past_date = str(current_date - timedelta(days=i))
+        past_date = str(current_date - timedelta(days=i-1))
         data_dict_l[past_date] = [int(datetime.strptime(past_date, "%Y-%m-%d").timestamp())*1000, 0]
 
     for date_string, count in data_dict.items():
         data_dict_l[date_string][1] += count
-    print(list(data_dict_l.values()))
+    # print(list(data_dict_l.values()))
 
     return JsonResponse({"status": True, "data": list(data_dict_l.values())})
